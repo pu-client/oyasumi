@@ -38,6 +38,10 @@ export const create = async () => {
        await saveConfigFile();
     }
 
+    try {
     return await createClient(un,sc,up);
 
+    } catch (err) {
+        return undefined
+    }
 };

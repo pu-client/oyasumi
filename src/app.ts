@@ -40,12 +40,10 @@ let task_keeper;
     await createConfigFile()
     await loadConfigFile()
     await saveConfigFile()
-    let client = new Client();
-    try {
-        client = await create();
-    } catch (e) {
-        logger.error(e)
-        process.exit()
+    const client = await create();
+    if (!client) {
+        logger.error("用户名密码错误")
+        return
     }
     const groups = await client.myGroupList();
     await createPusher();
