@@ -69,7 +69,11 @@ export function joining(this: Client){
                         if (data.data === "报名人数已达限制，无法报名哦~") {
                             logger.mark(chalk.redBright('活动 '+event.name+`已达限制 ${chalk.green("[已添加到监听列表]")}`))
                             eventMap1.set(event.actiId, event);
-
+                        }
+                        if (data.data==="您不是该活动的参与对象哦~"){
+                            blackSet.add(event.actiId);
+                            eventMap.delete(id)
+                            logger.warn(chalk.bgBlueBright(`[过滤器失效] 请在github提交issue [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`))
                         }
                     }
                 }).catch(e=>{
@@ -104,9 +108,13 @@ async function addToList(client:Client,info:Array<SchoolEvent>){
                 if(event.allow_year>0&&event.allow_year.indexOf("20"+client.userinfo?.year)!==-1){
                     return;
                 }
-                if(event.allow_group.length>0&&!event.allow_group.includes(group)){
+                if(event.allow_group.length>0&&!event.allow_group.includes(...group)){
                     return;
                 }
+                if(event.allow_school.length>0&&!event.allow_school.includes(client.userinfo.yx)){
+                    return;
+                }
+
                 let flag=false;
                 if(lodash.isEqual(event,eventMap.get(event.actiId))){
 
@@ -149,10 +157,14 @@ export async function monitor(this: Client){
                         (data)=>{
                             if (data.status) {
                                 logger.mark(chalk.green('活动 '+event.name+` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] [${chalk.yellowBright("加入成功")}]`))
-                                eventMap.delete(id);
+                                eventMap1.delete(id);
                                 eventSet.add(id)
                             } else {
-
+                                if (data.data==="您不是该活动的参与对象哦~"){
+                                    blackSet.add(event.actiId);
+                                    eventMap.delete(id)
+                                    logger.warn(chalk.bgBlueBright(`[过滤器失效] 请在github提交issue [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`))
+                                }
 
                             }
                         }

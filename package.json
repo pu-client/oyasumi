@@ -5,9 +5,17 @@
   "main": "app.js",
   "scripts": {
     "build": "tsc",
+    "dev": "ts-node ./src/app.ts",
+    "login": "tsc && node ./dist/loginApp.js",
 
-    "dev": "ts-node src/app.ts",
-    "app ": "ts-node src/app.ts"
+    "update": "git fetch && git pull",
+
+    "start": "tsc && pm2 start ./dist/app.js --name pu-client",
+    "restart": "tsc && pm2 restart ./dist/app.js --name pu-client",
+    "stop": "pm2 stop dist/app.js --name pu-client",
+    "delete": "pm2 delete dist/app.js --name pu-client",
+    "monitor": "pm2 monit dist/app.js --name pu-client",
+    "logs": "pm2 logs --name pu-client"
   },
   "keywords": [],
   "author": "",

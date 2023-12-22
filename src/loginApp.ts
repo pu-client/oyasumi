@@ -1,13 +1,15 @@
 import {createClient, getSchoolMap} from "pu-client"
-import {saveConfigFile, user} from "./config";
+import {loadConfigFile, saveConfigFile, user} from "./config";
 import * as chalk from "chalk";
 const {AutoComplete, Input, Password} = require('enquirer');
-export const create = async () => {
+
+(async () => {
+    await loadConfigFile()
+
     let sc =user.school
     let un =user.username
     let up =user.password
-    if((sc===""&&un===""&&up==="")){
-        console.log(chalk.blueBright("这是你的第一次使用,你需要先登录pu账户."))
+
         const schoolIn = new AutoComplete({
             name: 'school',
             message: '选择你的学校',
@@ -35,9 +37,15 @@ export const create = async () => {
         user.school=sc;
         user.username=un;
         user.password=up;
-       await saveConfigFile();
-    }
+        await saveConfigFile();
 
-    return await createClient(un,sc,up);
 
-};
+     createClient(un,sc,up).then((client)=>{
+        console.log(`登陆成功学号: ${client.userinfo?.sno} 班级: ${client.userinfo?.class} 年级: ${client.userinfo?.year}`)
+
+     }).catch((err)=>{
+         console.log(chalk.redBright("登录失败 请检查账户密码"))
+     })
+    process.exit()
+
+})()

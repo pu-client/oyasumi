@@ -4,7 +4,7 @@
     "module": "commonjs",
     "strict": true,
     "allowSyntheticDefaultImports": true,
-    "outDir": ""
+    "outDir": "./dist",
   },
   "include": [
     "src/**/*"
