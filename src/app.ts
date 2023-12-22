@@ -40,7 +40,13 @@ let task_keeper;
     await createConfigFile()
     await loadConfigFile()
     await saveConfigFile()
-    const client = await create();
+    let client = new Client();
+    try {
+        client = await create();
+    } catch (e) {
+        logger.error(e)
+        process.exit()
+    }
     const groups = await client.myGroupList();
     await createPusher();
     logger.mark(chalk.blueBright(`登录完成 学号: ${client.userinfo?.sno} 班级: ${client.userinfo?.class} 年级: ${client.userinfo?.year} `));
@@ -52,13 +58,13 @@ let task_keeper;
     task_joining= setInterval(joining.bind(client),200);
     task_monitor= setInterval(monitor.bind(client),200);
     //------------------------------------------------------------------
-    logger.mark(chalk.blueBright(`部落列表[${groups.data.length}]`));
-    if(pusher){
-        pusher.push("喵喵喵? 已成功启动！","")
+    if (pusher) {
+        pusher.push("喵喵喵? 已成功启动！", "")
         logger.mark(chalk.blueBright(`推送服务已启动 服务类型: ${config.pushing.type}`));
-    }else {
+    } else {
         logger.mark(chalk.redBright(`推送服务未启动`));
     }
+    logger.mark(chalk.blueBright(`部落列表[${groups.data.length}]`));
     if (groups.data.length > 0) {
         groups.data.forEach((v) => {
             logger.mark(chalk.blueBright(`部落名:${v.name}   部落id:${v.id}`));
@@ -88,8 +94,14 @@ async function keeper(this:Client){
             pusher.push("喵喵喵? 登录已失效 但是已重新登录了","")
 
         }).catch((err)=>{
-            logger.error(chalk.redBright("登录失败 请检查账户密码!"))
-            pusher.push("喵喵喵? 登录已失效请检查账户密码 程序已退出","")
+            if (err.includes("密码错误")) {
+                logger.error(chalk.redBright("登录失败 请检查账户密码!"))
+                pusher.push("喵喵喵? 登录已失效请检查账户密码", "")
+                process.exit()
+            } else {
+                logger.error(chalk.redBright("网络错误"))
+
+            }
 
         })
 
