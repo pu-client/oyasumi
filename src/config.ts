@@ -30,35 +30,47 @@ export let config:Config={
         type:'email'
     }
 };
+export let push:Push={
+    email:{
+        email:'',
+        password:'',
+        host:'',
+        port:465,
+        to:''
+    },
+    server_chan:{
+        sendKey:''
+    }
+};
 export async function createConfigFile() {
     Fs.mkdirSync(process.cwd()+"/config", { recursive: true });
-    if (!Fs.existsSync(process.cwd()+"/config/email.json")) {
-        Fs.writeFileSync(process.cwd()+"/config/email.json", JSON.stringify({}));
+    if (!Fs.existsSync(process.cwd()+"/config/push.json")) {
+        Fs.writeFileSync(process.cwd()+"/config/push.json", JSON.stringify(push,null,"\t"));
     }
     if (!Fs.existsSync(process.cwd()+"/config/user.json")) {
-        Fs.writeFileSync(process.cwd()+"/config/user.json", JSON.stringify(user));
+        Fs.writeFileSync(process.cwd()+"/config/user.json", JSON.stringify(user,null,"\t"));
     }
     if (!Fs.existsSync(process.cwd()+"/config/config.json")) {
-        Fs.writeFileSync(process.cwd()+"/config/config.json", JSON.stringify(config));
+        Fs.writeFileSync(process.cwd()+"/config/config.json", JSON.stringify(config,null,"\t") );
     }
     if (!Fs.existsSync(process.cwd()+"/config/event.json")) {
-        Fs.writeFileSync(process.cwd()+"/config/event.json", JSON.stringify(event));
+        Fs.writeFileSync(process.cwd()+"/config/event.json", JSON.stringify(event,null,"\t"));
     }
 }
 export async function loadConfigFile(){
     config=JSON.parse(Fs.readFileSync(process.cwd()+"/config/config.json").toString());
     user=JSON.parse(Fs.readFileSync(process.cwd()+"/config/user.json").toString());
-    email=JSON.parse(Fs.readFileSync(process.cwd()+"/config/email.json").toString());
+    push=JSON.parse(Fs.readFileSync(process.cwd()+"/config/push.json").toString());
     event=JSON.parse(Fs.readFileSync(process.cwd()+"/config/event.json").toString());
     event.filter.forEach((v)=>{
         v.t=new TimeInterval(new Date(new Date().toLocaleDateString()+" "+v.start),new Date(new Date().toLocaleDateString()+" "+v.end))
     })
 }
 export async function saveConfigFile(){
-    Fs.writeFileSync(process.cwd()+"/config/config.json", JSON.stringify(config),{flag:"w"});
-    Fs.writeFileSync(process.cwd()+"/config/user.json", JSON.stringify(user),{flag:"w"});
-    Fs.writeFileSync(process.cwd()+"/config/email.json", JSON.stringify(email),{flag:"w"});
-    Fs.writeFileSync(process.cwd()+"/config/event.json", JSON.stringify(event),{flag:"w"});
+    Fs.writeFileSync(process.cwd()+"/config/config.json", JSON.stringify(config,null,"\t"),{flag:"w"});
+    Fs.writeFileSync(process.cwd()+"/config/user.json", JSON.stringify(user,null,"\t"),{flag:"w"});
+    Fs.writeFileSync(process.cwd()+"/config/push.json", JSON.stringify(push,null,"\t"),{flag:"w"});
+    Fs.writeFileSync(process.cwd()+"/config/event.json", JSON.stringify(event,null,"\t"),{flag:"w"});
 }
 export interface User{
     username:string
@@ -78,7 +90,7 @@ export interface Config{
         //启用和关闭推送
         enable:boolean
         //推送类型
-        type:string // email
+        type:string // email ServerChan
     }
 }
 export interface Event{
@@ -96,6 +108,23 @@ export interface Event{
         enable:boolean
         t:TimeInterval|any
     }>
+}
+export interface Push{
+    email:{
+        //发送邮件的邮箱
+        email:string
+        //发送邮件的密码
+        password:string
+        //发送邮件的服务器
+        host:string
+        //发送邮件的端口
+        port:number
+        //发送邮件的目标邮箱
+        to:string
+    },
+    server_chan:{
+        sendKey:string
+    }
 }
 // export interface Email{
 //     email:

@@ -4,6 +4,7 @@ import {scheduleJob} from "node-schedule";
 import {getLogger} from "log4js";
 import * as chalk from "chalk";
 import * as lodash from 'lodash';
+import {pusher} from "./pusher";
 const logger=getLogger("app")
 export function doFilter(e:SchoolEvent,client:Client){
     let flag=false;
@@ -64,6 +65,7 @@ export function joining(this: Client){
                         logger.mark(chalk.green('活动 '+event.name+` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] [${chalk.yellowBright("加入成功")}]`))
                         eventMap.delete(id);
                         eventSet.add(id)
+                        pusher.push("喵喵喵?"+' 活动加入成功'+event.name,'活动加入成功'+event.name+` [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`)
 
                     } else {
                         if (data.data === "报名人数已达限制，无法报名哦~") {
@@ -159,13 +161,14 @@ export async function monitor(this: Client){
                                 logger.mark(chalk.green('活动 '+event.name+` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] [${chalk.yellowBright("加入成功")}]`))
                                 eventMap1.delete(id);
                                 eventSet.add(id)
+                                pusher.push("喵喵喵?"+' 活动加入成功'+event.name,'活动加入成功'+event.name+` [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`)
+
                             } else {
                                 if (data.data==="您不是该活动的参与对象哦~"){
                                     blackSet.add(event.actiId);
                                     eventMap.delete(id)
                                     logger.warn(chalk.bgBlueBright(`[过滤器失效] 请在github提交issue [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`))
                                 }
-
                             }
                         }
                     ).catch((err)=>{

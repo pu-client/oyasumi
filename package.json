@@ -7,9 +7,7 @@
     "build": "tsc",
     "dev": "ts-node ./src/app.ts",
     "login": "tsc && node ./dist/loginApp.js",
-
     "update": "git fetch && git pull",
-
     "start": "tsc && pm2 start ./dist/app.js --name pu-client",
     "restart": "tsc && pm2 restart ./dist/app.js --name pu-client",
     "stop": "pm2 stop dist/app.js --name pu-client",
@@ -23,15 +21,17 @@
     "chalk": "^4.1.2",
     "copy-paste": "^1.5.3",
     "enquirer": "^2.4.1",
-    "node-schedule": "^2.1.1",
-    "pu-client": "^1.0.19",
     "lodash": "^4.17.21",
-    "log4js": "^6.9.1"
+    "log4js": "^6.9.1",
+    "node-schedule": "^2.1.1",
+    "nodemailer": "^6.9.7",
+    "pu-client": "^1.0.19"
   },
   "devDependencies": {
-    "ts-node": "^10.9.1",
-    "@types/node-schedule": "^2.1.5",
     "@types/lodash": "^4.14.202",
+    "@types/node-schedule": "^2.1.5",
+    "@types/nodemailer": "^6.4.14",
+    "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
   }
 }
