@@ -1,7 +1,8 @@
 import {createClient, getSchoolMap} from "pu-client"
 import {saveConfigFile, user} from "./config";
 import * as chalk from "chalk";
-const {AutoComplete, Input, Password} = require('enquirer');
+// @ts-ignore
+import {AutoComplete, Input, Password} from 'enquirer';
 export const create = async () => {
     let sc =user.school
     let un =user.username

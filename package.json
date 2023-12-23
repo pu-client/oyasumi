@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "build": "tsc",
+    "build-plugin": "tsc -p tsconfig-yunzai.json",
     "dev": "ts-node ./src/app.ts",
     "login": "tsc && node ./dist/loginApp.js",
     "update": "git fetch && git pull",
