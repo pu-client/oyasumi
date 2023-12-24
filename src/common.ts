@@ -42,7 +42,7 @@ export function doFilter(e:SchoolEvent,client:Client){
 }
 export async function pushing(this: Client){
    try{
-       const events=await this.eventList("", -1, {}, false);
+       const events = await this.eventList("未开始", "", 40, -1, false);
        const ff= events.data.filter((v)=>{
            return doFilter(v,this);
        })
@@ -56,7 +56,7 @@ const eventSet = new Set<string>();
 const blackSet = new Set<string>();
 export function joining(this: Client){
     eventMap.forEach((event,id)=>{
-        const time = new Date().getTime()-100;
+        const time = new Date().getTime();
         const eventRegTime = Number.parseInt(String(event.regStartTimeStr)) * 1000;
         if (time > eventRegTime) {
             if (this.joinDelay < Date.now()) {
@@ -82,10 +82,9 @@ export function joining(this: Client){
                     logger.error(chalk.redBright("无网络 或者是 pu服务器死了"))
 
                 })
-            } else {
-
-
             }
+        } else {
+
         }
 
 
@@ -138,7 +137,7 @@ async function addToList(client:Client,info:Array<SchoolEvent>){
                         }
                     }else {
                         if(event.isJoin===0){
-                            logger.mark(chalk.redBright('添加到加入列表 '+event.name+` [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`))
+                            logger.mark(chalk.redBright('添加到加入列表 ' + event.name + ` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] [${forDate(new Date(parseInt(event.regStartTimeStr) * 1000))}]`))
                             eventMap.set(event.actiId, event);
 
                         }
@@ -150,6 +149,9 @@ async function addToList(client:Client,info:Array<SchoolEvent>){
 }
 const eventMap1 = new Map<string, EventInfo>();
 
+function forDate(date: Date) {
+    return (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes().toString().padStart(2, "0")
+}
 export async function monitor(this: Client){
     eventMap1.forEach((event,id)=>{
         this.eventInfo(event.actiId,false).then((v)=>{
