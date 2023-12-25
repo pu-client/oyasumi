@@ -7,7 +7,38 @@ import {joining, monitor, pushing} from "./common";
 import * as log4js from "log4js";
 import {Client, SchoolEvent} from "pu-client";
 import {createPusher, pusher} from "./pusher";
+import {exec} from 'child_process';
+
 const logger = log4js.getLogger("app");
+
+
+function isGitRepositoryUpdated(callback: (isUpdated: boolean) => void): void {
+    exec('git fetch', (error, stdout, stderr) => {
+        if (error) {
+            callback(true);
+        } else {
+            exec('git status -uno', (error, stdout, stderr) => {
+                if (error) {
+                    callback(true);
+                } else {
+                    const isBehind = /Your branch is behind/.test(stdout);
+                    callback(!isBehind);
+                }
+            });
+        }
+    });
+}
+
+isGitRepositoryUpdated((isUpdated) => {
+    if (isUpdated) {
+        logger.info(chalk.bgGreenBright("当前已是最新版本"))
+
+    } else {
+        logger.warn(chalk.bgGreenBright("有新的更新 请在控制台输入 npm run update 更新版本"))
+
+    }
+});
+
 log4js.configure({
     appenders: {
         console: {

@@ -47,6 +47,20 @@ export async function pushing(this: Client){
            return doFilter(v,this);
        })
        await addToList(this, ff)
+       logger.info("")
+       logger.info(chalk.blueBright(`当前加入列表共有 [${chalk.greenBright(eventMap.size)}]`))
+
+       eventMap.forEach((v, k) => {
+           logger.info("- " + chalk.greenBright(v.name))
+
+       })
+       logger.info(chalk.blueBright(`当前监听列表共有 [${chalk.greenBright(eventMap1.size)}]`))
+
+
+       eventMap1.forEach((v, k) => {
+           logger.info("- " + chalk.greenBright(v.name))
+
+       })
    }catch (e){
        logger.error(chalk.redBright("无网络 或者是 pu服务器死了"))
    }
