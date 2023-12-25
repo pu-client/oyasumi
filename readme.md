@@ -1,18 +1,44 @@
 ## 介绍
 这是一个用于自动加入活动的脚本，可以自动加入你收藏的活动、你部落的活动、所有可以加入的活动。并且支持推送功能，可以通过邮件等方式推送活动信息。也可以根据你的要求自定义活动的筛选条件。
 ## 快速开始
-### 安装依赖
-在此之前您应该确保您已经安装了nodejs, npm, git。
+
+### 使用Termux(安卓)
+
+#### 安装[Termux](https://github.com/termux/termux-app/releases)
+
+下载arm64版本的安装包，在手机上安装后打开Termux，依次运行以下命令：
+```bash
+pkg install git
+pkg install nodejs
+```
+
+#### 检查是否安装成功
+
+```bash
+git --version
+node -v
+```
+
+#### 下载
+
+```bash
+git clone https://github.com/seiuna/puu-uuuuuuuuuuuu.git
+cd puu-uuuuuuuuuuuu
+```
+
+#### 安装依赖
+
 ```bash
 npm install
 ```
-### 启动
+
+#### 运行
+
 ```bash
 npm run dev
 ```
-第一次启动会自动创建配置文件，配置文件位于`/config`目录下。并且你需要登录pu账户. 如果需要推送功能，需要在`/config/config.json`中配置推送方式。
 
-## 配置文件
+# 配置文件
 配置文件位于`/config`目录下，包含`user.json`、`config.json`、`event.json`三个文件。
 ### user.json
 ```json
