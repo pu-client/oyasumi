@@ -71,6 +71,8 @@ export function joining(this: Client){
                         if (data.data === "报名人数已达限制，无法报名哦~") {
                             logger.mark(chalk.redBright('活动 '+event.name+`已达限制 ${chalk.green("[已添加到监听列表]")}`))
                             eventMap1.set(event.actiId, event);
+                            eventMap.delete(id)
+                            blackSet.add(event.actiId);
                         }
                         if (data.data==="您不是该活动的参与对象哦~"){
                             blackSet.add(event.actiId);

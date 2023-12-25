@@ -7,7 +7,6 @@ import {joining, monitor, pushing} from "./common";
 import * as log4js from "log4js";
 import {Client, SchoolEvent} from "pu-client";
 import {createPusher, pusher} from "./pusher";
-
 const logger = log4js.getLogger("app");
 log4js.configure({
     appenders: {
@@ -92,13 +91,18 @@ async function keeper(this:Client){
             pusher.push("喵喵喵? 登录已失效 但是已重新登录了","")
 
         }).catch((err)=>{
-            if (err.includes("密码错误")) {
-                logger.error(chalk.redBright("登录失败 请检查账户密码!"))
-                pusher.push("喵喵喵? 登录已失效请检查账户密码", "")
-                process.exit()
-            } else {
-                logger.error(chalk.redBright("网络错误"))
+            if (typeof err == "string") {
+                if (err.includes("密码错误")) {
+                    logger.error(chalk.redBright("登录失败 请检查账户密码!"))
+                    pusher.push("喵喵喵? 登录已失效请检查账户密码", "")
+                    process.exit()
+                } else {
+                    logger.error(chalk.redBright("网络错误"))
 
+                }
+
+            } else {
+                logger.error("未知错误: " + err)
             }
 
         })
@@ -106,3 +110,4 @@ async function keeper(this:Client){
     })
 
 }
+
