@@ -1,6 +1,6 @@
 {
   "name": "fufuu",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "e?",
   "main": "app.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "build-plugin": "tsc -p tsconfig-yunzai.json",
     "dev": "ts-node ./src/app.ts",
     "login": "tsc && node ./dist/loginApp.js",
-    "update": "git fetch && git pull",
+    "update": "git fetch && git merge",
     "start": "tsc && pm2 start ./dist/app.js --name pu-client",
     "restart": "tsc && pm2 restart ./dist/app.js --name pu-client",
     "stop": "pm2 stop dist/app.js --name pu-client",
