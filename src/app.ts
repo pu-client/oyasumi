@@ -71,6 +71,11 @@ let task_keeper;
     await loadConfigFile()
     await saveConfigFile()
     const client = await create();
+    logger.mark(chalk.redBright(`免责声明: 本软件仅供学习交流使用,请勿用于非法用途,否则后果自负!`));
+    logger.mark(chalk.yellowBright(`Github: https://github.com/seiuna/puu-uuuuuuuuuuuu`));
+
+    logger.mark(chalk.blueBright(`登录中...`));
+
     if (!client) {
         logger.error("用户名密码错误")
         return
