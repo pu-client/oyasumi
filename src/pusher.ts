@@ -65,6 +65,12 @@ export async function createPusher(){
         if(config.pushing.type==="server_chan"){
             pusher=new ScPusher();
         }
+    } else {
+        pusher = {
+            push: function () {
+
+            }
+        }
     }
 
 }

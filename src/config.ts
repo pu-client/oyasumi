@@ -1,5 +1,7 @@
 import * as Fs from "fs";
+import {blackSet} from "./common";
 export let email:any={};
+export let blackList: any = [];
 export let user:User={
     username:"",
     password:"",
@@ -56,21 +58,27 @@ export async function createConfigFile() {
     if (!Fs.existsSync(process.cwd()+"/config/event.json")) {
         Fs.writeFileSync(process.cwd()+"/config/event.json", JSON.stringify(event,null,"\t"));
     }
+    if (!Fs.existsSync(process.cwd() + "/config/blackList.json")) {
+        Fs.writeFileSync(process.cwd() + "/config/blackList.json", JSON.stringify(blackList, null, "\t"));
+    }
 }
 export async function loadConfigFile(){
     config=JSON.parse(Fs.readFileSync(process.cwd()+"/config/config.json").toString());
     user=JSON.parse(Fs.readFileSync(process.cwd()+"/config/user.json").toString());
     push=JSON.parse(Fs.readFileSync(process.cwd()+"/config/push.json").toString());
     event=JSON.parse(Fs.readFileSync(process.cwd()+"/config/event.json").toString());
+    blackList = JSON.parse(Fs.readFileSync(process.cwd() + "/config/blackList.json").toString());
     event.filter.forEach((v)=>{
         v.t=new TimeInterval(new Date(new Date().toLocaleDateString()+" "+v.start),new Date(new Date().toLocaleDateString()+" "+v.end))
     })
+
 }
 export async function saveConfigFile(){
     Fs.writeFileSync(process.cwd()+"/config/config.json", JSON.stringify(config,null,"\t"),{flag:"w"});
     Fs.writeFileSync(process.cwd()+"/config/user.json", JSON.stringify(user,null,"\t"),{flag:"w"});
     Fs.writeFileSync(process.cwd()+"/config/push.json", JSON.stringify(push,null,"\t"),{flag:"w"});
     Fs.writeFileSync(process.cwd()+"/config/event.json", JSON.stringify(event,null,"\t"),{flag:"w"});
+    Fs.writeFileSync(process.cwd() + "/config/blackList.json", JSON.stringify(blackList, null, "\t"), {flag: "w"});
 }
 export interface User{
     username:string

@@ -62,12 +62,12 @@ export async function pushing(this: Client){
 
        })
    }catch (e){
-       logger.error(chalk.redBright("无网络 或者是 pu服务器死了"))
+       logger.error(chalk.redBright("无网络 或者是 pu服务器死了 c") + e)
    }
 }
 const eventMap = new Map<string, EventInfo>();
 const eventSet = new Set<string>();
-const blackSet = new Set<string>();
+export const blackSet = new Set<string>();
 export function joining(this: Client){
     eventMap.forEach((event,id)=>{
         const time = new Date().getTime();
@@ -95,7 +95,7 @@ export function joining(this: Client){
                         }
                     }
                 }).catch(e=>{
-                    logger.error(chalk.redBright("无网络 或者是 pu服务器死了"))
+                    logger.error(chalk.redBright("无网络 或者是 pu服务器死了 b") + e)
 
                 })
             }
@@ -190,7 +190,7 @@ export async function monitor(this: Client){
                             }
                         }
                     ).catch((err)=>{
-                        logger.error(chalk.redBright("无网络 或者是 pu服务器死了"))
+                        logger.error(chalk.redBright("无网络 或者是 pu服务器死了 a") + err)
                     })
                 }
             }
