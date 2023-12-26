@@ -6,10 +6,12 @@ import * as chalk from "chalk";
 import * as lodash from 'lodash';
 import {pusher} from "./pusher";
 const logger=getLogger("app")
-export function doFilter(e:SchoolEvent,client:Client){
+
+export async function doFilter(e: SchoolEvent, client: Client) {
     let flag=false;
     const filters=event.filter;
-    filters.forEach((v)=>{
+    for (let i = 0; i <= filters.length - 1; i++) {
+        const v = filters[i];
         let flag2=true;
         const st=new Date( parseInt(e.sTime)*1000);
         st.setMonth(v.t.start.getMonth())
@@ -28,41 +30,78 @@ export function doFilter(e:SchoolEvent,client:Client){
         if(e.allow!=="0"){
             flag2=flag2&&false;
         }
-        flag=flag||flag2;
-    })
-    if((parseInt(e.deadline)*1000)<Date.now()){
-        flag=false;
-    }
-    if(flag){
+        v.names.forEach(v => {
+            if (!new RegExp(v).test(e.title)) {
+                flag2 = flag2 && false;
+            }
+        })
 
+        flag=flag||flag2;
+        if ((parseInt(e.deadline) * 1000) < Date.now()) {
+            flag = false;
+        }
+        if (flag) {
+            const eventInfo = await client.eventInfo(e.id, false);
+            if (eventInfo.data.thinAssn) {
+                for (let i = 0; i <= v.groups.length - 1; i++) {
+                    const r = v.groups[i];
+                    if (!new RegExp(r).test(eventInfo.data.thinAssn.name)) {
+                        flag = false;
+                    } else {
+                        flag = true
+                        break
+                    }
+                }
+            }
+
+        }
     }
 
 
     return flag;
 }
+
+let processFlag = true;
 export async function pushing(this: Client){
+    if (!processFlag) {
+        return;
+    }
+    processFlag = false;
    try{
        const events = await this.eventList("未开始", "", 40, -1, false);
-       const ff= events.data.filter((v)=>{
-           return doFilter(v,this);
-       })
+
+       // const ff= events.data.filter((v)=>{
+       //     return  doFilter(v,this);
+       // })
+       const ff: any = [];
+       for (let i = 0; i <= events.data.length - 1; i++) {
+           const v = events.data[i];
+           if (await doFilter(v, this)) {
+               ff.push(v)
+           }
+       }
+
+
        await addToList(this, ff)
        logger.info("")
        logger.info(chalk.blueBright(`当前加入列表共有 [${chalk.greenBright(eventMap.size)}]`))
 
        eventMap.forEach((v, k) => {
-           logger.info("- " + chalk.greenBright(v.name))
+           logger.info("- " + chalk.greenBright(v.name) + chalk.blueBright(` [${v.joinNum}/${v.limitNum}]`))
 
        })
        logger.info(chalk.blueBright(`当前监听列表共有 [${chalk.greenBright(eventMap1.size)}]`))
 
 
        eventMap1.forEach((v, k) => {
-           logger.info("- " + chalk.greenBright(v.name))
+           logger.info("- " + chalk.greenBright(v.name) + chalk.blueBright(` [${v.joinNum}/${v.limitNum}]`))
+
 
        })
    }catch (e){
        logger.error(chalk.redBright("无网络 或者是 pu服务器死了 c") + e)
+   } finally {
+       processFlag = true;
    }
 }
 const eventMap = new Map<string, EventInfo>();
@@ -92,6 +131,9 @@ export function joining(this: Client){
                             blackSet.add(event.actiId);
                             eventMap.delete(id)
                             logger.warn(chalk.bgBlueBright(`[过滤器失效] 请在github提交issue [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`))
+                        } else {
+                            logger.error("未知错误: " + data.data + "  请在github提交issue [https://pc.pocketuni.net/active/detail?id=" + event.actiId + "]")
+
                         }
                     }
                 }).catch(e=>{
@@ -112,7 +154,7 @@ async function addToList(client:Client,info:Array<SchoolEvent>){
         return v.name;
     })
     for (let i = 0; i <= info.length-1; i++) {
-        promises.push(client.eventInfo(info[i].id,false));
+        promises.push(client.eventInfo(info[i].id, true));
     }
     const results = await Promise.allSettled(promises);
     results.forEach((result) => {
@@ -133,8 +175,7 @@ async function addToList(client:Client,info:Array<SchoolEvent>){
                 }
 
                 let flag=false;
-                if(lodash.isEqual(event,eventMap.get(event.actiId))){
-
+                if (!lodash.isEqual(event, eventMap.get(event.actiId))) {
                     flag=true;
                 }
                 if(eventSet.has(event.actiId)&&!blackSet.has(event.actiId)){
@@ -144,6 +185,7 @@ async function addToList(client:Client,info:Array<SchoolEvent>){
 
                     }
                 }
+
                 if(!blackSet.has(event.actiId)){
                     if(eventMap.has(event.actiId)){
                         if(flag){
@@ -186,6 +228,9 @@ export async function monitor(this: Client){
                                     blackSet.add(event.actiId);
                                     eventMap.delete(id)
                                     logger.warn(chalk.bgBlueBright(`[过滤器失效] 请在github提交issue [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`))
+                                } else {
+                                    logger.error("未知错误: " + data.data + "  请在github提交issue [https://pc.pocketuni.net/active/detail?id=" + event.actiId + "]")
+
                                 }
                             }
                         }
