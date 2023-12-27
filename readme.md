@@ -45,6 +45,31 @@ npm run dev
 ### 注意事项
 
 1. 不要将termux放到后台，否则可能会导致程序无法正常运行。
+2. 建议配置event.json文件，否则可能会加入奇怪的活动。例如如下配置，只会加入电子信息工程学院学生会、图书馆、轨道交通学生会、人文艺术系的活动。
+
+```json
+{
+  "filter": [
+    {
+      "name": "default",
+      "start": "00:00",
+      "end": "23:59",
+      "groups": [
+        "电子信息工程学院学生会",
+        "图书馆",
+        "轨道交通学生会",
+        "人文艺术系"
+      ],
+      "names": [
+        ".*"
+      ],
+      "over": false,
+      "score": 0,
+      "enable": true
+    }
+  ]
+}
+```
 # 配置文件
 配置文件位于`/config`目录下，包含`user.json`、`config.json`、`event.json`三个文件。
 ### user.json
@@ -77,13 +102,13 @@ npm run dev
 }
 ```
 
-| 属性             | 类型      | 描述              |
-|----------------|---------|-----------------|
-| event.group    | boolean | 是否自动加入你部落的活动    |
-| event.fav      | boolean | 是否自动加入你收藏的活动    |
-| event.allowed  | boolean | 是否自动加入所有可以加入的活动 |
-| pushing.enable | boolean | 是否启用推送          |
-| pushing.type   | string  | 推送类型（email）     |
+| 属性             | 类型      | 描述                |
+|----------------|---------|-------------------|
+| event.group    | boolean | 是否只加入你自己部落的活动     |
+| event.fav      | boolean | 是否自动加入你收藏的活动  未实现 |
+| event.allowed  | boolean | 是否自动加入所有可以加入的活动   |
+| pushing.enable | boolean | 是否启用推送            |
+| pushing.type   | string  | 推送类型（email）       |
 
 ### event
 ```json

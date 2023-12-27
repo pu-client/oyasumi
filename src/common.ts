@@ -1,11 +1,11 @@
-import {event, TimeInterval} from "./config";
+import {config, event, TimeInterval} from "./config";
 import {Client, EventInfo, GroupData, SchoolEvent} from "pu-client";
 import {scheduleJob} from "node-schedule";
 import {getLogger} from "log4js";
 import * as chalk from "chalk";
 import * as lodash from 'lodash';
 import {pusher} from "./pusher";
-import {isLogin} from "./app";
+import {isLogin, ugroups} from "./app";
 const logger=getLogger("app")
 
 export async function doFilter(e: SchoolEvent, client: Client) {
@@ -13,6 +13,7 @@ export async function doFilter(e: SchoolEvent, client: Client) {
     const filters=event.filter;
     for (let i = 0; i <= filters.length - 1; i++) {
         const v = filters[i];
+        if (!v.enable) continue;
         let flag2=true;
         const st=new Date( parseInt(e.sTime)*1000);
         st.setMonth(v.t.start.getMonth())
@@ -44,6 +45,15 @@ export async function doFilter(e: SchoolEvent, client: Client) {
         if (flag) {
             const eventInfo = await client.eventInfo(e.id, false);
             if (Object.keys(eventInfo.data.thinAssn).length > 0) {
+                if (config.event.group) {
+
+                    //是否只加入你自己部落的活动
+                    if (config.event.group) {
+                        return ugroups.has(eventInfo.data.thinAssn.assnid);
+                    }
+
+                }
+
                 for (let i = 0; i <= v.groups.length - 1; i++) {
                     const r = v.groups[i];
                     if (!new RegExp(r).test(eventInfo.data.thinAssn.name)) {
@@ -72,42 +82,49 @@ export async function pushing(this: Client){
         return;
     }
     processFlag = false;
-   try{
-       const events = await this.eventList("未开始", "", 40, -1, false);
+    try {
+        const events = []
 
-       // const ff= events.data.filter((v)=>{
-       //     return  doFilter(v,this);
-       // })
-       const ff: any = [];
-       for (let i = 0; i <= events.data.length - 1; i++) {
-           const v = events.data[i];
-           if (await doFilter(v, this)) {
-               ff.push(v)
-           }
-       }
+        if (config.event.fav) {
+            events.push(...(await this.myFavEventList(false)).data)
+        } else {
+            events.push(...(await this.eventList("未开始", "", 40, -1, false)).data)
 
+        }
 
-       await addToList(this, ff)
-       logger.info("")
-       logger.info(chalk.blueBright(`当前加入列表共有 [${chalk.greenBright(eventMap.size)}]`))
-
-       eventMap.forEach((v, k) => {
-           logger.info("- " + chalk.greenBright(v.name) + chalk.blueBright(` [${v.joinNum}/${v.limitNum}]`))
-
-       })
-       logger.info(chalk.blueBright(`当前监听列表共有 [${chalk.greenBright(eventMap1.size)}]`))
+        // const ff= events.data.filter((v)=>{
+        //     return  doFilter(v,this);
+        // })
+        const ff: any = [];
+        for (let i = 0; i <= events.length - 1; i++) {
+            const v = events[i];
+            if (await doFilter(v, this)) {
+                ff.push(v)
+            }
+        }
 
 
-       eventMap1.forEach((v, k) => {
-           logger.info("- " + chalk.greenBright(v.name) + chalk.blueBright(` [${v.joinNum}/${v.limitNum}]`))
+        await addToList(this, ff)
+        logger.info("")
+        logger.info(chalk.blueBright(`当前加入列表共有 [${chalk.greenBright(eventMap.size)}]`))
+
+        eventMap.forEach((v, k) => {
+            logger.info("- " + chalk.greenBright(v.name) + chalk.blueBright(` [${v.joinNum}/${v.limitNum}]`))
+
+        })
+        logger.info(chalk.blueBright(`当前监听列表共有 [${chalk.greenBright(eventMap1.size)}]`))
 
 
-       })
-   }catch (e){
-       logger.error(chalk.redBright("无网络 或者是 pu服务器死了 c") + e)
-   } finally {
-       processFlag = true;
-   }
+        eventMap1.forEach((v, k) => {
+            logger.info("- " + chalk.greenBright(v.name) + chalk.blueBright(` [${v.joinNum}/${v.limitNum}]`))
+
+
+        })
+    } catch (e) {
+        logger.error(chalk.redBright("无网络 或者是 pu服务器死了 c") + e)
+    } finally {
+        processFlag = true;
+    }
 }
 const eventMap = new Map<string, EventInfo>();
 const eventSet = new Set<string>();
@@ -195,7 +212,7 @@ async function addToList(client:Client,info:Array<SchoolEvent>){
 
                 if(!blackSet.has(event.actiId)){
                     if(eventMap.has(event.actiId)){
-                            eventMap.set(event.actiId, event);
+                        eventMap.set(event.actiId, event);
 
                     }else {
                         if(event.isJoin===0){

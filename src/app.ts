@@ -61,6 +61,7 @@ log4js.configure({
         default: {appenders: ['console', 'file'], level: 'info'},
     },
 });
+export const ugroups = new Set();
 let task_pushing;
 let task_joining;
 let task_monitor;
@@ -99,11 +100,13 @@ let task_keeper;
     logger.mark(chalk.blueBright(`部落列表[${groups.data.length}]`));
     if (groups.data.length > 0) {
         groups.data.forEach((v) => {
+            ugroups.add(v.id)
             logger.mark(chalk.blueBright(`部落名:${v.name}   部落id:${v.id}`));
         })
     }
     logger.mark(chalk.yellowBright(`已加载过滤器[${event.filter.length}]`));
     event.filter.forEach((v) => {
+        if (!v.enable) return;
         logger.mark(chalk.yellowBright(`${v.name}  ${v.start}~${v.end}  部落: ${v.groups.length > 0 ? v.groups : "全部"}  ${v.over ? "交叉" : "包含"}  >=${v.score}分`));
     });
 })();

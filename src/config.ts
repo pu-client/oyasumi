@@ -27,7 +27,7 @@ export let event:Event={
 export let config:Config={
     event:{
         group:false,
-        fav:true,
+        fav: false,
         allowed:true,
     },
     pushing:{
@@ -90,9 +90,9 @@ export interface User{
 }
 export interface Config{
     event:{
-        //如果可以会自动加入你部落的活动
+        //是否只会加入你部落的活动
         group:boolean
-        //如果可以会自动加入你收藏的活动
+        //是否只会加入你收藏的活动
         fav:boolean
         //如果可以回自动加入所有可以加入的活动
         allowed:boolean
