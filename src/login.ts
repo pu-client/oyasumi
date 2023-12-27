@@ -1,48 +1,20 @@
-import {createClient, getSchoolMap} from "pu-client"
-import {saveConfigFile, user} from "./config";
 import * as chalk from "chalk";
-// @ts-ignore
-import {AutoComplete, Input, Password} from 'enquirer';
-export const create = async () => {
-    let sc =user.school
-    let un =user.username
-    let up =user.password
-    if((sc===""&&un===""&&up==="")){
-        console.log(chalk.blueBright("这是你的第一次使用,你需要先登录pu账户."))
-        const schoolIn = new AutoComplete({
-            name: 'school',
-            message: '选择你的学校',
-            limit: 10,
-            initial: 2,
-            choices: Object.keys(await getSchoolMap().then((e)=> {return e.ne}))
-        });
-        const username = new Input({
-            name: 'school',
-            message: '输入你的学号或身份证',
-        });
+import {create} from "./auth";
 
-        const password = new Password({
-            name: 'password',
-            message: '输入你的密码',
-        });
-        let type = "save";
-        let token;
 
-        sc=  await schoolIn.run()
-        un=await username.run()
-        up= await password.run()
-        sc=await getSchoolMap().then((v)=>{
-            return v.ne[sc]})
-        user.school=sc;
-        user.username=un;
-        user.password=up;
-       await saveConfigFile();
-    }
+(async () => {
 
-    try {
-    return await createClient(un,sc,up);
 
-    } catch (err) {
-        return undefined
-    }
-};
+    create(true).then((client) => {
+        if (client) {
+            console.log(`登陆成功学号: ${client.userinfo?.sno} 班级: ${client.userinfo?.class} 年级: ${client.userinfo?.year}`)
+            console.log("在终端输入 npm run dev 启动程序！")
+        } else {
+            console.log(chalk.redBright("登录失败 请检查账户密码"))
+
+        }
+        process.exit()
+
+    })
+
+})()

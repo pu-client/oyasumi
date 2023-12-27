@@ -1,5 +1,5 @@
 import * as Fs from 'fs';
-import {create} from "./login";
+import {create} from "./auth";
 import {config, createConfigFile, event, loadConfigFile, saveConfigFile, user} from "./config";
 import * as chalk from "chalk";
 import {scheduleJob} from "node-schedule";
@@ -73,9 +73,7 @@ let task_keeper;
     const client = await create();
     logger.mark(chalk.redBright(`免责声明: 本软件仅供学习交流使用,请勿用于非法用途,否则后果自负!`));
     logger.mark(chalk.yellowBright(`Github: https://github.com/seiuna/puu-uuuuuuuuuuuu`));
-
     logger.mark(chalk.blueBright(`登录中...`));
-
     if (!client) {
         logger.error("用户名密码错误")
         return
@@ -86,15 +84,15 @@ let task_keeper;
     logger.mark(chalk.yellowBright(`创建任务 pushing joining`));
     //------------------------------------------------------------------
     task_update= scheduleJob('* * */0 * * *', update.bind(client));
-    task_pushing = scheduleJob('*/10 * * * * *', pushing.bind(client));
+    task_pushing = scheduleJob('*/1 * * * *', pushing.bind(client));
     task_pushing= scheduleJob('*/1 * * * *', pushing.bind(client));
-    // task_keeper= scheduleJob('*/8 * * * * *', keeper.bind(client));
+    task_keeper = scheduleJob('*/8 * * * * *', keeper.bind(client));
     task_joining= setInterval(joining.bind(client),200);
     task_monitor= setInterval(monitor.bind(client),200);
     //------------------------------------------------------------------
-    if (pusher) {
+    if (config.pushing.enable) {
         pusher.push("喵喵喵? 已成功启动！", "")
-        logger.mark(chalk.blueBright(`推送服务已启动 服务类型: ${config.pushing.type}`));
+        logger.mark(chalk.blueBright(`推送服务已启动 服务类型: ${config.pushing.enable}`));
     } else {
         logger.mark(chalk.redBright(`推送服务未启动`));
     }
@@ -117,16 +115,19 @@ async function update(this:Client){
 
 }
 
+export let isLogin: boolean;
 async function keeper(this:Client){
+    if (isLogin) return;
     this.test().catch((err)=>{
-        logger.error(chalk.redBright("登录已失效 重新登录中"))
+        isLogin = true;
+        logger.error(chalk.redBright("登录已失效 重新登录中..."))
         let sc =user.school
         let un =user.username
         let up =user.password
         this.login(un,up,sc).then(()=>{
             logger.mark(chalk.greenBright("已重新登陆!"))
             pusher.push("喵喵喵? 登录已失效 但是已重新登录了","")
-
+            isLogin = false;
         }).catch((err)=>{
             if (typeof err == "string") {
                 if (err.includes("密码错误")) {
@@ -141,6 +142,7 @@ async function keeper(this:Client){
             } else {
                 logger.error("未知错误: " + err)
             }
+            isLogin = false;
 
         })
 
