@@ -5,6 +5,7 @@ import {getLogger} from "log4js";
 import * as chalk from "chalk";
 import * as lodash from 'lodash';
 import {pusher} from "./pusher";
+import {isLogin} from "./app";
 const logger=getLogger("app")
 
 export async function doFilter(e: SchoolEvent, client: Client) {
@@ -42,7 +43,7 @@ export async function doFilter(e: SchoolEvent, client: Client) {
         }
         if (flag) {
             const eventInfo = await client.eventInfo(e.id, false);
-            if (eventInfo.data.thinAssn) {
+            if (Object.keys(eventInfo.data.thinAssn).length > 0) {
                 for (let i = 0; i <= v.groups.length - 1; i++) {
                     const r = v.groups[i];
                     if (!new RegExp(r).test(eventInfo.data.thinAssn.name)) {
@@ -52,6 +53,8 @@ export async function doFilter(e: SchoolEvent, client: Client) {
                         break
                     }
                 }
+            } else {
+                return true
             }
 
         }
@@ -63,6 +66,8 @@ export async function doFilter(e: SchoolEvent, client: Client) {
 
 let processFlag = true;
 export async function pushing(this: Client){
+    if (isLogin) return;
+
     if (!processFlag) {
         return;
     }
@@ -108,6 +113,9 @@ const eventMap = new Map<string, EventInfo>();
 const eventSet = new Set<string>();
 export const blackSet = new Set<string>();
 export function joining(this: Client){
+    if (isLogin) return;
+
+
     eventMap.forEach((event,id)=>{
         const time = new Date().getTime();
         const eventRegTime = Number.parseInt(String(event.regStartTimeStr)) * 1000;
@@ -126,15 +134,17 @@ export function joining(this: Client){
                             eventMap1.set(event.actiId, event);
                             eventMap.delete(id)
                             blackSet.add(event.actiId);
-                        }
-                        if (data.data==="您不是该活动的参与对象哦~"){
-                            blackSet.add(event.actiId);
-                            eventMap.delete(id)
-                            logger.warn(chalk.bgBlueBright(`[过滤器失效] 请在github提交issue [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`))
                         } else {
-                            logger.error("未知错误: " + data.data + "  请在github提交issue [https://pc.pocketuni.net/active/detail?id=" + event.actiId + "]")
+                            if (data.data === "您不是该活动的参与对象哦~") {
+                                blackSet.add(event.actiId);
+                                eventMap.delete(id)
+                                logger.warn(chalk.bgBlueBright(`[过滤器失效] 请在github提交issue [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`))
+                            } else {
+                                logger.error("未知错误: " + data.data + "  请在github提交issue [https://pc.pocketuni.net/active/detail?id=" + event.actiId + "]")
 
+                            }
                         }
+
                     }
                 }).catch(e=>{
                     logger.error(chalk.redBright("无网络 或者是 pu服务器死了 b") + e)
@@ -174,10 +184,7 @@ async function addToList(client:Client,info:Array<SchoolEvent>){
                     return;
                 }
 
-                let flag=false;
-                if (!lodash.isEqual(event, eventMap.get(event.actiId))) {
-                    flag=true;
-                }
+
                 if(eventSet.has(event.actiId)&&!blackSet.has(event.actiId)){
                     if(event.isJoin===0){
                         blackSet.add(event.actiId);
@@ -188,11 +195,8 @@ async function addToList(client:Client,info:Array<SchoolEvent>){
 
                 if(!blackSet.has(event.actiId)){
                     if(eventMap.has(event.actiId)){
-                        if(flag){
-                            logger.mark(chalk.redBright('活动信息发生变化 '+event.name+` [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`))
                             eventMap.set(event.actiId, event);
 
-                        }
                     }else {
                         if(event.isJoin===0){
                             logger.mark(chalk.redBright('添加到加入列表 ' + event.name + ` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] [${forDate(new Date(parseInt(event.regStartTimeStr) * 1000))}]`))
@@ -211,6 +215,8 @@ function forDate(date: Date) {
     return (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes().toString().padStart(2, "0")
 }
 export async function monitor(this: Client){
+    if (isLogin) return;
+
     eventMap1.forEach((event,id)=>{
         this.eventInfo(event.actiId,false).then((v)=>{
             if(v.status){
@@ -229,7 +235,12 @@ export async function monitor(this: Client){
                                     eventMap.delete(id)
                                     logger.warn(chalk.bgBlueBright(`[过滤器失效] 请在github提交issue [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`))
                                 } else {
-                                    logger.error("未知错误: " + data.data + "  请在github提交issue [https://pc.pocketuni.net/active/detail?id=" + event.actiId + "]")
+                                    if (data.data === "报名人数已达限制，无法报名哦~") {
+
+                                    } else {
+                                        logger.error("未知错误: " + data.data + "  请在github提交issue [https://pc.pocketuni.net/active/detail?id=" + event.actiId + "]")
+
+                                    }
 
                                 }
                             }
