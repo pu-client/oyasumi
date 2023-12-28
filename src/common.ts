@@ -1,9 +1,7 @@
 import {config, event, TimeInterval} from "./config";
 import {Client, EventInfo, GroupData, SchoolEvent} from "pu-client";
-import {scheduleJob} from "node-schedule";
 import {getLogger} from "log4js";
 import * as chalk from "chalk";
-import * as lodash from 'lodash';
 import {pusher} from "./pusher";
 import {isLogin, ugroups} from "./app";
 const logger=getLogger("app")

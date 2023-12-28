@@ -8,11 +8,6 @@
     "build-plugin": "tsc -p tsconfig-yunzai.json",
     "dev": "ts-node ./src/app.ts",
     "login": "ts-node ./src/login.ts",
-
-
-
-
-
     "update": "git fetch && git merge",
     "start": "tsc && pm2 start ./dist/app.js --name pu-client",
     "restart": "tsc && pm2 restart ./dist/app.js --name pu-client",
