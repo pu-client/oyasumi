@@ -8,7 +8,7 @@
     "build-plugin": "tsc -p tsconfig-yunzai.json",
     "dev": "ts-node ./src/app.ts",
     "login": "ts-node ./src/login.ts",
-    "update": "git fetch && git merge",
+    "update": "git fetch && git merge && npm install",
     "start": "tsc && pm2 start ./dist/app.js --name pu-client",
     "restart": "tsc && pm2 restart ./dist/app.js --name pu-client",
     "stop": "pm2 stop dist/app.js --name pu-client",
@@ -26,7 +26,7 @@
     "log4js": "^6.9.1",
     "node-schedule": "^2.1.1",
     "nodemailer": "^6.9.7",
-    "pu-client": "^1.0.23"
+    "pu-client": "^1.0.24"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.202",
