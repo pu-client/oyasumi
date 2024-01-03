@@ -77,6 +77,7 @@ let task_keeper;
     logger.mark(chalk.blueBright(`登录中...`));
     if (!client) {
         logger.error("用户名密码错误")
+        process.exit()
         return
     }
     const groups = await client.myGroupList();
