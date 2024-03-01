@@ -27,7 +27,8 @@ export async function doFilter(e: SchoolEvent, client: Client) {
         if(parseInt(e.score)<v.score){
             flag2=flag2&&false;
         }
-        if(e.allow!=="0"){
+        // 当allowed 开启时只会自动加入报名不需要审核的活动
+        if (e.allow !== "0" && config.event.allowed) {
             flag2=flag2&&false;
         }
         v.names.forEach(v => {
@@ -189,9 +190,9 @@ async function addToList(client:Client,info:Array<SchoolEvent>){
                 const event:EventInfo|any=data.data;
                 //我觉得理论上用10年就够了
                 //判断是否允许加入活动 年纪和部落
-                if(event.allow_year>0&&event.allow_year.indexOf("20"+client.userinfo?.year)!==-1){
-                    return;
-                }
+                // if(event.allow_year>0&&event.allow_year.indexOf("20"+client.userinfo?.year)!==-1){
+                //     return;
+                // }
                 if(event.allow_group.length>0&&!event.allow_group.includes(...group)){
                     return;
                 }
