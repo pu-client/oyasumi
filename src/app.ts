@@ -87,7 +87,7 @@ let task_keeper;
     //------------------------------------------------------------------
     task_update= scheduleJob('* * */0 * * *', update.bind(client));
     task_pushing = scheduleJob('*/1 * * * *', pushing.bind(client));
-    task_pushing= scheduleJob('*/1 * * * *', pushing.bind(client));
+    // task_pushing= scheduleJob('*/10 * * * * *', pushing.bind(client));
     task_keeper = scheduleJob('*/8 * * * * *', keeper.bind(client));
     task_joining= setInterval(joining.bind(client),200);
     task_monitor= setInterval(monitor.bind(client),200);

@@ -24,13 +24,14 @@ export async function doFilter(e: SchoolEvent, client: Client) {
         if(!TimeInterval.hasOverlap(v.t,interval)){
             flag2=flag2&&false;
         }
-        if(parseInt(e.score)<v.score){
+        if (e.credit < v.score) {
             flag2=flag2&&false;
         }
         // 当allowed 开启时只会自动加入报名不需要审核的活动
         if (e.allow !== "0" && config.event.allowed) {
             flag2=flag2&&false;
         }
+
         v.names.forEach(v => {
             if (!new RegExp(v).test(e.title)) {
                 flag2 = flag2 && false;
