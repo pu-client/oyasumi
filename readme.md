@@ -6,10 +6,10 @@
 
 ## 介绍
 这是一个用于自动加入活动的脚本，可以自动加入你收藏的活动、你部落的活动、所有可以加入的活动。并且支持推送功能，可以通过邮件等方式推送活动信息。也可以根据你的要求自定义活动的筛选条件。
-pu-client实现请参考[pu-client](https://github.com/seiuna/pu-client)。
+pu-client库[pu-client](https://github.com/seiuna/pukoudai-client)。
 ## 快速开始
 
-### 使用Termux(安卓)
+### 使用Termux(安卓/linux类似)
 
 #### 安装[Termux](https://github.com/termux/termux-app/releases)
 
@@ -44,10 +44,55 @@ npm install
 npm run dev
 ```
 
+#### 切换账户或者重新登录
+
+```bash
+npm run login
+```
+
+### 使用Windows
+
+#### 安装[Node.js](https://nodejs.org/zh-cn/download/)
+
+#### 安装[Git](https://git-scm.com/downloads)
+
+#### 下载
+
+```bash
+git clone https://github.com/seiuna/puu-uuuuuuuuuuuu.git
+```
+
+#### 安装依赖
+
+```bash
+cd puu-uuuuuuuuuuuu
+```
+
+```bash
+npm install
+```
+
+#### 运行
+
+```bash
+npm run dev
+```
+
+#### 切换账户或者重新登录
+
+```bash
+npm run login
+```
+
 ### 注意事项
 
 1. 不要将termux放到后台，否则可能会导致程序无法正常运行。
-2. 建议配置event.json文件，否则可能会加入奇怪的活动。例如如下配置，只会加入电子信息工程学院学生会、图书馆、轨道交通学生会、人文艺术系的活动。
+
+# 配置文件
+
+### 修改活动筛选条件
+
+建议配置event.json文件，否则可能会加入奇怪的活动。例如如下配置，只会加入电子信息工程学院学生会、图书馆、轨道交通学生会、人文艺术系的活动。
 
 ```json
 {
@@ -72,7 +117,23 @@ npm run dev
   ]
 }
 ```
-# 配置文件
+
+### 修改扫描间隔
+
+你可以修改`src/app.ts`文件中的`task_update`、`task_pushing`、`task_keeper`、`task_joining`、`task_monitor`的时间间隔，以适应你的需求。
+
+```js
+task_update = scheduleJob('* * */0 * * *', update.bind(client));
+// 扫描活动的间隔
+task_pushing = scheduleJob('*/1 * * * *', pushing.bind(client));
+// 保证你一直处于登录状态
+task_keeper = scheduleJob('*/8 * * * * *', keeper.bind(client));
+// 加入活动的扫描间隔
+task_joining = setInterval(joining.bind(client), 200);
+// 当一个活动满员了的扫描间隔
+task_monitor = setInterval(monitor.bind(client), 200);
+```
+
 配置文件位于`/config`目录下，包含`user.json`、`config.json`、`event.json`三个文件。
 ### user.json
 ```json
