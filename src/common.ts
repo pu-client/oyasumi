@@ -23,14 +23,20 @@ export async function sign(this: Client) {
             const en = v.eTime * 1000 + 1000 * 60 * 35;
             if (st < Date.now() && Date.now() < en) {
                 if (!flag) {
-                    this.signEvent(v.id, this.authData.uid, 1).then((data) => {
-                        logger.mark(chalk.greenBright('签到成功 ' + v.title))
-                    })
+                    if (parseInt(v.sign_in_num) / v.joinNum > 0.6) {
+                        this.signEvent(v.id, this.authData.uid, 1).then((data) => {
+                            logger.mark(chalk.greenBright('签到成功 ' + v.title))
+                        })
+                    }
+
                 }
                 if (!flag1) {
-                    this.signEvent(v.id, this.authData.uid, 2).then((data) => {
-                        logger.mark(chalk.greenBright('签退成功 ' + v.title))
-                    })
+                    if (v.sign_out_num / v.joinNum > 0.6) {
+                        this.signEvent(v.id, this.authData.uid, 2).then((data) => {
+                            logger.mark(chalk.greenBright('签退成功 ' + v.title))
+                        })
+                    }
+
                 }
             }
         }

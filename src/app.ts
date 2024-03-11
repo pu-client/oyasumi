@@ -93,7 +93,7 @@ let task_sign;
     task_update= scheduleJob('* * */0 * * *', update.bind(client));
     task_pushing = scheduleJob('*/1 * * * *', pushing.bind(client));
     if (config.event.autoSignInAndOut) {
-        task_sign = scheduleJob('*/10 * * * * *', sign.bind(client));
+        task_sign = scheduleJob('*/1 * * * *', sign.bind(client));
     }
     // task_pushing = scheduleJob('*/10 * * * * *', pushing.bind(client));
     task_keeper = scheduleJob('*/8 * * * * *', keeper.bind(client));
