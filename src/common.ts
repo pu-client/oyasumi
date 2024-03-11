@@ -6,6 +6,36 @@ import {pusher} from "./pusher";
 import {isLogin, ugroups, ugroupsName} from "./app";
 const logger=getLogger("app")
 
+export async function sign(this: Client) {
+    for await (const e of this.myEventList("全部", 1, 20)) {
+        for (let i = 0; i <= e.length - 1; i++) {
+            const v = e[i];
+            let flag = false;
+            let flag1 = false;
+            if (v.sign_in_status.timeline) {
+                flag = true;
+            }
+            if (v.sign_out_status.timeline) {
+                flag1 = true;
+            }
+            const st = parseInt(v.sTime) * 1000 - 1000 * 60 * 35;
+
+            const en = v.eTime * 1000 + 1000 * 60 * 35;
+            if (st < Date.now() && Date.now() < en) {
+                if (!flag) {
+                    this.signEvent(v.id, this.authData.uid, 1).then((data) => {
+                        logger.mark(chalk.greenBright('签到成功 ' + v.title))
+                    })
+                }
+                if (!flag1) {
+                    this.signEvent(v.id, this.authData.uid, 2).then((data) => {
+                        logger.mark(chalk.greenBright('签退成功 ' + v.title))
+                    })
+                }
+            }
+        }
+    }
+}
 export async function doFilter(e: Event, client: Client) {
     let flag=false;
     const filters=event.filter;
@@ -151,7 +181,6 @@ export function joining(this: Client){
                         eventMap.delete(id);
                         eventSet.add(id)
                         pusher.push("喵喵喵?"+' 活动加入成功'+event.name,'活动加入成功'+event.name+` [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`)
-
                     } else {
                         if (data.data === "报名人数已达限制，无法报名哦~") {
                             logger.mark(chalk.redBright('活动 '+event.name+`已达限制 ${chalk.green("[已添加到监听列表]")}`))
@@ -165,23 +194,19 @@ export function joining(this: Client){
                                 logger.warn(chalk.bgBlueBright(`[过滤器失效] 请在github提交issue [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`))
                             } else {
                                 logger.error("未知错误: " + data.data + "  请在github提交issue [https://pc.pocketuni.net/active/detail?id=" + event.actiId + "]")
-
                             }
                         }
-
                     }
                 }).catch(e=>{
                     logger.error(chalk.redBright("无网络 或者是 pu服务器死了 b") + e)
-
                 })
             }
         } else {
 
         }
-
-
     })
 }
+
 
 async function addToList(client: Client, info: Array<Event>) {
     const promises: Promise<unknown>[] = [];

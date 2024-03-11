@@ -26,6 +26,7 @@ export let event:Event={
 };
 export let config:Config={
     event:{
+        autoSignInAndOut: false,
         group:false,
         fav: false,
         allowed:true,
@@ -90,6 +91,7 @@ export interface User{
 }
 export interface Config{
     event:{
+        autoSignInAndOut: boolean
         //是否只会加入你部落的活动
         group:boolean
         //是否只会加入你收藏的活动

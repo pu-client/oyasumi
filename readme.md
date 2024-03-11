@@ -117,7 +117,6 @@ npm run login
   ]
 }
 ```
-
 ### 修改扫描间隔
 
 你可以修改`src/app.ts`文件中的`task_update`、`task_pushing`、`task_keeper`、`task_joining`、`task_monitor`的时间间隔，以适应你的需求。

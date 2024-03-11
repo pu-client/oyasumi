@@ -3,7 +3,7 @@ import {create} from "./auth";
 import {config, createConfigFile, event, loadConfigFile, saveConfigFile, user} from "./config";
 import * as chalk from "chalk";
 import {scheduleJob} from "node-schedule";
-import {joining, monitor, pushing} from "./common";
+import {joining, monitor, pushing, sign} from "./common";
 import * as log4js from "log4js";
 import {Client, Group} from "pu-client";
 import {createPusher, pusher} from "./pusher";
@@ -68,6 +68,7 @@ let task_joining;
 let task_monitor;
 let task_update;
 let task_keeper;
+let task_sign;
 (async function () {
     await createConfigFile()
     await loadConfigFile()
@@ -91,6 +92,9 @@ let task_keeper;
     //------------------------------------------------------------------
     task_update= scheduleJob('* * */0 * * *', update.bind(client));
     task_pushing = scheduleJob('*/1 * * * *', pushing.bind(client));
+    if (config.event.autoSignInAndOut) {
+        task_sign = scheduleJob('*/10 * * * * *', sign.bind(client));
+    }
     // task_pushing = scheduleJob('*/10 * * * * *', pushing.bind(client));
     task_keeper = scheduleJob('*/8 * * * * *', keeper.bind(client));
     task_joining= setInterval(joining.bind(client),200);
