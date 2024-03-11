@@ -1,12 +1,12 @@
 import {config, event, TimeInterval} from "./config";
-import {Client, EventInfo, GroupData, SchoolEvent} from "pu-client";
+import {Client, Event, GroupData} from "pu-client";
 import {getLogger} from "log4js";
 import * as chalk from "chalk";
 import {pusher} from "./pusher";
-import {isLogin, ugroups} from "./app";
+import {isLogin, ugroups, ugroupsName} from "./app";
 const logger=getLogger("app")
 
-export async function doFilter(e: SchoolEvent, client: Client) {
+export async function doFilter(e: Event, client: Client) {
     let flag=false;
     const filters=event.filter;
     for (let i = 0; i <= filters.length - 1; i++) {
@@ -24,11 +24,12 @@ export async function doFilter(e: SchoolEvent, client: Client) {
         if(!TimeInterval.hasOverlap(v.t,interval)){
             flag2=flag2&&false;
         }
+        // console.log(e.title)
         if (e.credit < v.score) {
             flag2=flag2&&false;
         }
         // 当allowed 开启时只会自动加入报名不需要审核的活动
-        if (e.allow !== "0" && config.event.allowed) {
+        if (e.allow.toString() !== "0" && config.event.allowed) {
             flag2=flag2&&false;
         }
 
@@ -37,26 +38,25 @@ export async function doFilter(e: SchoolEvent, client: Client) {
                 flag2 = flag2 && false;
             }
         })
-
         flag=flag||flag2;
         if ((parseInt(e.deadline) * 1000) < Date.now()) {
             flag = false;
         }
         if (flag) {
-            const eventInfo = await client.eventInfo(e.id, false);
-            if (Object.keys(eventInfo.data.thinAssn).length > 0) {
+            const eventInfo = await client.getEvent(e.id, {cache: false});
+            if (Object.keys(eventInfo.thinAssn).length > 0) {
                 if (config.event.group) {
 
                     //是否只加入你自己部落的活动
                     if (config.event.group) {
-                        return ugroups.has(eventInfo.data.thinAssn.assnid);
+                        return ugroups.has(eventInfo.thinAssn.assnid);
                     }
 
                 }
 
                 for (let i = 0; i <= v.groups.length - 1; i++) {
                     const r = v.groups[i];
-                    if (!new RegExp(r).test(eventInfo.data.thinAssn.name)) {
+                    if (!new RegExp(r).test(eventInfo.thinAssn.name)) {
                         flag = false;
                     } else {
                         flag = true
@@ -86,10 +86,15 @@ export async function pushing(this: Client){
         const events = []
 
         if (config.event.fav) {
-            events.push(...(await this.myFavEventList(false)).data)
+            // events.push(...(await this.myFavEventList(false)).data)
+            for await (const v of (this.myFavEventList(-1, 20, {cache: false}))) {
+                events.push(...v)
+            }
         } else {
-            events.push(...(await this.eventList("未开始", "", 40, -1, false)).data)
-
+            // events.push(...(await this.eventList("未开始", "", 40, -1, false)).data)
+            for await (const v of (this.eventList("未开始", "", 40, -1))) {
+                events.push(...v)
+            }
         }
 
         // const ff= events.data.filter((v)=>{
@@ -126,18 +131,20 @@ export async function pushing(this: Client){
         processFlag = true;
     }
 }
-const eventMap = new Map<string, EventInfo>();
+
+const eventMap = new Map<string, Event>();
 const eventSet = new Set<string>();
 export const blackSet = new Set<string>();
+
+let join_delay = 0;
 export function joining(this: Client){
     if (isLogin) return;
-
-
     eventMap.forEach((event,id)=>{
         const time = new Date().getTime();
         const eventRegTime = Number.parseInt(String(event.regStartTimeStr)) * 1000;
         if (time > eventRegTime) {
-            if (this.joinDelay < Date.now()) {
+            if (join_delay < Date.now()) {
+                join_delay = Date.now() + 1000 * 60 * 3.2;
                 this.joinEvent(event.actiId).then((data) => {
                     if (data.status) {
                         logger.mark(chalk.green('活动 '+event.name+` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] [${chalk.yellowBright("加入成功")}]`))
@@ -175,26 +182,26 @@ export function joining(this: Client){
 
     })
 }
-async function addToList(client:Client,info:Array<SchoolEvent>){
+
+async function addToList(client: Client, info: Array<Event>) {
     const promises: Promise<unknown>[] = [];
-    const group=(await client.myGroupList()).data.map((v:GroupData)=>{
-        return v.name;
-    })
+
     for (let i = 0; i <= info.length-1; i++) {
-        promises.push(client.eventInfo(info[i].id, true));
+        promises.push(client.getEvent(info[i].id, {cache: false}));
     }
     const results = await Promise.allSettled(promises);
     results.forEach((result) => {
         if (result.status === 'fulfilled') {
             const data = (result as PromiseFulfilledResult<any>).value;
-            if(data.status){
-                const event:EventInfo|any=data.data;
+            if (data) {
+                const event: Event | any = data;
+                // if(!event)return;
                 //我觉得理论上用10年就够了
                 //判断是否允许加入活动 年纪和部落
                 // if(event.allow_year>0&&event.allow_year.indexOf("20"+client.userinfo?.year)!==-1){
                 //     return;
                 // }
-                if(event.allow_group.length>0&&!event.allow_group.includes(...group)){
+                if (event.allow_group.length > 0 && !event.allow_group.includes(...ugroupsName)) {
                     return;
                 }
                 if(event.allow_school.length>0&&!event.allow_school.includes(client.userinfo.yx)){
@@ -216,7 +223,7 @@ async function addToList(client:Client,info:Array<SchoolEvent>){
 
                     }else {
                         if(event.isJoin===0){
-                            logger.mark(chalk.redBright('添加到加入列表 ' + event.name + ` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] [${forDate(new Date(parseInt(event.regStartTimeStr) * 1000))}]`))
+                            logger.mark(chalk.green('添加到加入列表 ' + chalk.yellowBright(event.name) + ` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] ${chalk.blueBright(`[${forDate(new Date(parseInt(event.regStartTimeStr) * 1000))}}]`)}`))
                             eventMap.set(event.actiId, event);
 
                         }
@@ -226,7 +233,8 @@ async function addToList(client:Client,info:Array<SchoolEvent>){
         }
     });
 }
-const eventMap1 = new Map<string, EventInfo>();
+
+const eventMap1 = new Map<string, Event>();
 
 function forDate(date: Date) {
     return (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes().toString().padStart(2, "0")
@@ -235,9 +243,9 @@ export async function monitor(this: Client){
     if (isLogin) return;
 
     eventMap1.forEach((event,id)=>{
-        this.eventInfo(event.actiId,false).then((v)=>{
+        this.getEvent(event.actiId, {cache: false}).then((v) => {
             if(v.status){
-                if(v.data.joinNum<v.data.limitNum){
+                if (v.joinNum < v.limitNum) {
                     this.joinEvent(event.actiId).then(
                         (data)=>{
                             if (data.status) {

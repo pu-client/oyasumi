@@ -5,7 +5,7 @@ import * as chalk from "chalk";
 import {scheduleJob} from "node-schedule";
 import {joining, monitor, pushing} from "./common";
 import * as log4js from "log4js";
-import {Client, SchoolEvent} from "pu-client";
+import {Client, Group} from "pu-client";
 import {createPusher, pusher} from "./pusher";
 import {exec} from 'child_process';
 
@@ -62,6 +62,7 @@ log4js.configure({
     },
 });
 export const ugroups = new Set();
+export const ugroupsName: string[] = []
 let task_pushing;
 let task_joining;
 let task_monitor;
@@ -80,14 +81,17 @@ let task_keeper;
         process.exit()
         return
     }
-    const groups = await client.myGroupList();
+    const groups: Group[] = []
+    for await (const v of client.myGroupList()) {
+        groups.push(...v)
+    }
     await createPusher();
     logger.mark(chalk.blueBright(`登录完成 学号: ${client.userinfo?.sno} 班级: ${client.userinfo?.class} 年级: ${client.userinfo?.year} `));
     logger.mark(chalk.yellowBright(`创建任务 pushing joining`));
     //------------------------------------------------------------------
     task_update= scheduleJob('* * */0 * * *', update.bind(client));
-    task_pushing = scheduleJob('*/1 * * * *', pushing.bind(client));
-    // task_pushing= scheduleJob('*/10 * * * * *', pushing.bind(client));
+    // task_pushing = scheduleJob('*/1 * * * *', pushing.bind(client));
+    task_pushing = scheduleJob('*/10 * * * * *', pushing.bind(client));
     task_keeper = scheduleJob('*/8 * * * * *', keeper.bind(client));
     task_joining= setInterval(joining.bind(client),200);
     task_monitor= setInterval(monitor.bind(client),200);
@@ -98,10 +102,11 @@ let task_keeper;
     } else {
         logger.mark(chalk.redBright(`推送服务未启动`));
     }
-    logger.mark(chalk.blueBright(`部落列表[${groups.data.length}]`));
-    if (groups.data.length > 0) {
-        groups.data.forEach((v) => {
+    logger.mark(chalk.blueBright(`部落列表[${groups.length}]`));
+    if (groups.length > 0) {
+        groups.forEach((v) => {
             ugroups.add(v.id)
+            ugroupsName.push(v.name)
             logger.mark(chalk.blueBright(`部落名:${v.name}   部落id:${v.id}`));
         })
     }
@@ -110,6 +115,7 @@ let task_keeper;
         if (!v.enable) return;
         logger.mark(chalk.yellowBright(`${v.name}  ${v.start}~${v.end}  部落: ${v.groups.length > 0 ? v.groups : "全部"}  ${v.over ? "交叉" : "包含"}  >=${v.score}分`));
     });
+    await pushing.bind(client)();
 })();
 async function update(this:Client){
     await createConfigFile()
