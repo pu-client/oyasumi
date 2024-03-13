@@ -180,7 +180,7 @@ export function joining(this: Client){
         const eventRegTime = Number.parseInt(String(event.regStartTimeStr)) * 1000;
         if (time > eventRegTime) {
             if (join_delay < Date.now()) {
-                join_delay = Date.now() + 1000 * 60 * 3.2;
+                join_delay = Date.now() + 1000 * 3.2;
                 this.joinEvent(event.actiId).then((data) => {
                     if (data.status) {
                         logger.mark(chalk.green('活动 '+event.name+` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] [${chalk.yellowBright("加入成功")}]`))
