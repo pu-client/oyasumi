@@ -7,40 +7,42 @@ import {isLogin, ugroups, ugroupsName} from "./app";
 const logger=getLogger("app")
 
 export async function sign(this: Client) {
-    for await (const e of this.myEventList("全部", 1, 20)) {
-        for (let i = 0; i <= e.length - 1; i++) {
-            const v = e[i];
-            let flag = false;
-            let flag1 = false;
-            if (v.sign_in_status.timeline) {
-                flag = true;
-            }
-            if (v.sign_out_status.timeline) {
-                flag1 = true;
-            }
-            const st = parseInt(v.sTime) * 1000 - 1000 * 60 * 35;
-
-            const en = v.eTime * 1000 + 1000 * 60 * 35;
-            if (st < Date.now() && Date.now() < en) {
-                if (!flag) {
-                    if (parseInt(v.sign_in_num) / v.joinNum > 0.6) {
-                        this.signEvent(v.id, this.authData.uid, 1).then((data) => {
-                            logger.mark(chalk.greenBright('签到成功 ' + v.title))
-                        })
-                    }
-
-                }
-                if (!flag1) {
-                    if (v.sign_out_num / v.joinNum > 0.6) {
-                        this.signEvent(v.id, this.authData.uid, 2).then((data) => {
-                            logger.mark(chalk.greenBright('签退成功 ' + v.title))
-                        })
-                    }
-
-                }
-            }
-        }
-    }
+    // for await (const e of this.myEventList("全部", 1, 20)) {
+    //     for (let i = 0; i <= e.length - 1; i++) {
+    //         const v = e[i];
+    //         let flag = false;
+    //         let flag1 = false;
+    //         if (v.sign_in_status.timeline) {
+    //             flag = true;
+    //         }
+    //         if (v.sign_out_status.timeline) {
+    //             flag1 = true;
+    //         }
+    //         const st = parseInt(v.sTime) * 1000 - 1000 * 60 * 50;
+    //
+    //         const en = v.eTime * 1000 + 1000 * 60 * 35;
+    //         if (st < Date.now() && Date.now() < en) {
+    //             if (!flag) {
+    //                 console.log(parseInt(v.sign_in_num) )
+    //                 console.log(v.joinCount )
+    //                 if (parseInt(v.sign_in_num) / v.joinNum > 0.6) {
+    //                     this.signEvent(v.id, this.authData.uid, 1).then((data) => {
+    //                         logger.mark(chalk.greenBright('签到成功 ' + v.title))
+    //                     })
+    //                 }
+    //
+    //             }
+    //             if (!flag1) {
+    //                 if (v.sign_out_num / v.joinNum > 0.6) {
+    //                     this.signEvent(v.id, this.authData.uid, 2).then((data) => {
+    //                         logger.mark(chalk.greenBright('签退成功 ' + v.title))
+    //                     })
+    //                 }
+    //
+    //             }
+    //         }
+    //     }
+    // }
 }
 export async function doFilter(e: Event, client: Client) {
     let flag=false;

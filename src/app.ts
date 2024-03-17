@@ -93,6 +93,7 @@ let task_sign;
     task_update= scheduleJob('* * */0 * * *', update.bind(client));
     task_pushing = scheduleJob('*/1 * * * *', pushing.bind(client));
     if (config.event.autoSignInAndOut) {
+        // task_sign = scheduleJob('*/5 * * * * *', sign.bind(client));
         task_sign = scheduleJob('*/1 * * * *', sign.bind(client));
     }
     // task_pushing = scheduleJob('*/10 * * * * *', pushing.bind(client));
@@ -122,6 +123,7 @@ let task_sign;
     await pushing.bind(client)();
 })();
 async function update(this:Client){
+    logger.mark((await this.dailySign()).data)
     await createConfigFile()
     await loadConfigFile()
     await saveConfigFile()
