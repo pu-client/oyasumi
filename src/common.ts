@@ -77,7 +77,7 @@ export async function doFilter(e: Event, client: Client) {
             }
         })
         flag=flag||flag2;
-        if ((parseInt(e.deadline) * 1000) < Date.now()) {
+        if ((parseInt(e.startline) * 1000) < Date.now()) {
             flag = false;
         }
         if (flag) {
@@ -102,7 +102,7 @@ export async function doFilter(e: Event, client: Client) {
                     }
                 }
             } else {
-                return true
+                flag = true
             }
 
         }
@@ -152,14 +152,14 @@ export async function pushing(this: Client){
         logger.info(chalk.blueBright(`当前加入列表共有 [${chalk.greenBright(eventMap.size)}]`))
 
         eventMap.forEach((v, k) => {
-            logger.info("- " + chalk.greenBright(v.name) + chalk.blueBright(` [${v.joinNum}/${v.limitNum}]`))
+            logger.info("- " + chalk.greenBright(v.name) + chalk.yellowBright(` [${v.joinNum}/${v.limitNum}]`) + chalk.blueBright(` [${v.id}]`))
 
         })
         logger.info(chalk.blueBright(`当前监听列表共有 [${chalk.greenBright(eventMap1.size)}]`))
 
 
         eventMap1.forEach((v, k) => {
-            logger.info("- " + chalk.greenBright(v.name) + chalk.blueBright(` [${v.joinNum}/${v.limitNum}]`))
+            logger.info("- " + chalk.greenBright(v.name) + chalk.yellowBright(` [${v.joinNum}/${v.limitNum}]`) + chalk.blueBright(` [${v.id}]`) + ` ${chalk.blueBright()}`)
 
 
         })
