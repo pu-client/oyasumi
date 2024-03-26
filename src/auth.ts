@@ -11,7 +11,6 @@ export const create = async (flag: boolean = false) => {
     if ((sc === "" && un === "" && up === "") || flag) {
         if (flag) {
             console.log(chalk.blueBright("这是你的第一次使用,你需要先登录pu账户."))
-
         }
         const schoolIn = new AutoComplete({
             name: 'school',

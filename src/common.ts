@@ -62,24 +62,35 @@ export async function doFilter(e: Event, client: Client) {
         if(!TimeInterval.hasOverlap(v.t,interval)){
             flag2=flag2&&false;
         }
-        // console.log(e.title)
         if (e.credit < v.score) {
+            if (flag2) logger.debug("filter failed: score " + e.title)
+
             flag2=flag2&&false;
+
         }
         // 当allowed 开启时只会自动加入报名不需要审核的活动
         if (e.allow.toString() !== "0" && config.event.allowed) {
+            if (flag2) logger.debug("filter failed: allow " + e.title)
             flag2=flag2&&false;
+
         }
 
         v.names.forEach(v => {
             if (!new RegExp(v).test(e.title)) {
+                if (flag2) logger.debug("filter failed: name match " + e.title)
+
                 flag2 = flag2 && false;
             }
+
         })
+
         flag=flag||flag2;
-        if ((parseInt(e.startline) * 1000) < Date.now()) {
+        if ((parseInt(e.deadline) * 1000) < Date.now()) {
+            if (flag2) logger.debug("filter failed: over time " + e.title)
+
             flag = false;
         }
+
         if (flag) {
             const eventInfo = await client.getEvent(e.id, {cache: false});
             if (Object.keys(eventInfo.thinAssn).length > 0) {
@@ -95,6 +106,8 @@ export async function doFilter(e: Event, client: Client) {
                 for (let i = 0; i <= v.groups.length - 1; i++) {
                     const r = v.groups[i];
                     if (!new RegExp(r).test(eventInfo.thinAssn.name)) {
+                        logger.debug("filter failed: group match " + e.title)
+
                         flag = false;
                     } else {
                         flag = true

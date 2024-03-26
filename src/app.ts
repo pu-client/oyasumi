@@ -99,7 +99,7 @@ let task_sign;
     // task_pushing = scheduleJob('*/10 * * * * *', pushing.bind(client));
     task_keeper = scheduleJob('*/8 * * * * *', keeper.bind(client));
     task_joining= setInterval(joining.bind(client),200);
-    task_monitor= setInterval(monitor.bind(client),200);
+    task_monitor = setInterval(monitor.bind(client), 300);
     //------------------------------------------------------------------
     if (config.pushing.enable) {
         pusher.push("喵喵喵? 已成功启动！", "")
