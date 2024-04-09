@@ -2,18 +2,17 @@ import {config, push} from "./config";
 import {createTransport, Transporter} from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 import * as querystring from "querystring";
-
+import {getLogger} from "log4js";
+import * as pkg from "../package.json";
+import * as chalk from "chalk";
 export interface Pusher{
 
     push(title:string,message:string):void;
 }
 class ScPusher implements Pusher{
     async push(title:string,message: string): Promise<void> {
-
-
         const postData = querystring.stringify({ title, message });
         const url = `https://sctapi.ftqq.com/${push.server_chan.sendKey}.send`;
-
         const response = await fetch(url, {
             method: 'POST',
             headers: (()=>{
@@ -24,37 +23,39 @@ class ScPusher implements Pusher{
             })(),
             body: postData
         });
-
         const data = await response.text();
-
     }
-
-
 }
+
+const logger = getLogger("pusher");
 class EmailPusher implements Pusher{
     transport: Transporter<SMTPTransport.SentMessageInfo>;
     constructor() {
         this.transport=createTransport({
             host: push.email.host,
             port: push.email.port,
-            secure: true, // true for 465, false for other ports
+            secure: false,
             auth: {
-                user: push.email.email, // generated ethereal user
-                pass: push.email.password, // generated ethereal password
-            },
+                user: push.email.email,
+                pass: push.email.password
+            }
         });
 
     }
     async push(title:string,message: string): Promise<void> {
+        logger.info(`尝试发送邮件 -> ${push.email.to} 标题: ${title}`);
         await this.transport.sendMail({
             from: push.email.email,
             to: push.email.to,
-            subject: "喵喵喵?",
+            subject: `[fufuu v${pkg.version}] ${title}`,
             text: message,
             html: message,
-        })
+        }).then((e) => {
+            logger.info(`${chalk.greenBright(`发送成功 -> ${push.email.to}`)} 标题: ${title}`);
+        }).catch((e) => {
+            logger.info(`${chalk.redBright(`发送失败 -> ${push.email.to}`)} 标题: ${title}`);
+        });
     }
-
 }
 export let pusher:Pusher
 export async function createPusher(){

@@ -102,8 +102,8 @@ let task_sign;
     task_monitor = setInterval(monitor.bind(client), 300);
     //------------------------------------------------------------------
     if (config.pushing.enable) {
-        pusher.push("喵喵喵? 已成功启动！", "")
-        logger.mark(chalk.blueBright(`推送服务已启动 服务类型: ${config.pushing.enable}`));
+        // pusher.push("喵喵喵? 已成功启动！", "")
+        logger.mark(chalk.blueBright(`推送服务已启动 服务类型: ${config.pushing.type}`));
     } else {
         logger.mark(chalk.redBright(`推送服务未启动`));
     }
@@ -120,6 +120,7 @@ let task_sign;
         if (!v.enable) return;
         logger.mark(chalk.yellowBright(`${v.name}  ${v.start}~${v.end}  部落: ${v.groups.length > 0 ? v.groups : "全部"}  ${v.over ? "交叉" : "包含"}  >=${v.score}分`));
     });
+    pusher.push("喵喵喵? 已成功启动！", "")
     await pushing.bind(client)();
 })();
 async function update(this:Client){

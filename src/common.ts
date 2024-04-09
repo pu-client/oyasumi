@@ -268,6 +268,7 @@ async function addToList(client: Client, info: Array<Event>) {
                     if(event.isJoin===0){
                         blackSet.add(event.actiId);
                         logger.mark(chalk.redBright('活动加入信息发生变化 '+event.name+` 已添加到黑名单列表`));
+                        pusher.push("喵喵喵?" + ' 活动加入信息发生变化 ' + event.name, '活动加入信息发生变化 ' + event.name + ` [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`)
 
                     }
                 }

@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "commonjs",
+    "resolveJsonModule": true,
     "strict": true,
     "allowSyntheticDefaultImports": true,
     "outDir": "dist"
