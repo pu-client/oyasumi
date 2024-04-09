@@ -4,6 +4,7 @@ import {getLogger} from "log4js";
 import * as chalk from "chalk";
 import {pusher} from "./pusher";
 import {isLogin, ugroups, ugroupsName} from "./app";
+import * as Lodash from "lodash";
 const logger=getLogger("app")
 
 export async function sign(this: Client) {
@@ -100,7 +101,6 @@ export async function doFilter(e: Event, client: Client) {
                     if (config.event.group) {
                         return ugroups.has(eventInfo.thinAssn.assnid);
                     }
-
                 }
 
                 for (let i = 0; i <= v.groups.length - 1; i++) {
@@ -205,6 +205,7 @@ export function joining(this: Client){
                     } else {
                         if (data.data === "报名人数已达限制，无法报名哦~") {
                             logger.mark(chalk.redBright('活动 '+event.name+`已达限制 ${chalk.green("[已添加到监听列表]")}`))
+                            this.favEvent(event.actiId, "add");
                             eventMap1.set(event.actiId, event);
                             eventMap.delete(id)
                             blackSet.add(event.actiId);
@@ -244,9 +245,17 @@ async function addToList(client: Client, info: Array<Event>) {
                 // if(!event)return;
                 //我觉得理论上用10年就够了
                 //判断是否允许加入活动 年纪和部落
-                // if(event.allow_year>0&&event.allow_year.indexOf("20"+client.userinfo?.year)!==-1){
-                //     return;
-                // }
+                let f = false;
+                if (event.allow_year.length > 0) {
+                    for (const v of event.allow_year) {
+                        if (v.includes(client.userinfo?.year)) {
+                            f = true;
+                        }
+                    }
+                    if (!f) {
+                        return;
+                    }
+                }
                 if (event.allow_group.length > 0 && !event.allow_group.includes(...ugroupsName)) {
                     return;
                 }
@@ -287,45 +296,58 @@ function forDate(date: Date) {
 }
 export async function monitor(this: Client){
     if (isLogin) return;
+    const c: any = [];
+    for await (const v of this.myFavEventList(20, 20)) {
+        c.push(...v)
+    }
 
-    eventMap1.forEach((event,id)=>{
-        this.getEvent(event.actiId, {cache: false}).then((v) => {
-            if(v.status){
-                if (v.joinNum < v.limitNum) {
-                    this.joinEvent(event.actiId).then(
-                        (data)=>{
-                            if (data.status) {
-                                logger.mark(chalk.green('活动 '+event.name+` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] [${chalk.yellowBright("加入成功")}]`))
-                                eventMap1.delete(id);
-                                eventSet.add(id)
-                                pusher.push("喵喵喵?"+' 活动加入成功'+event.name,'活动加入成功'+event.name+` [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`)
+    for (const event1 of c) {
+        if (!eventMap1.has(event1.id)) {
+            continue;
+        }
+        const common = (await this.getEvent(event1.id, {cache: true})) as Event;
+        const v = common;
+        v.joinCount = event1.joinCount;
+        if (v.status) {
+            if (v.regStartTimeStr * 1000 >= Date.now() || v.regEndTimeStr * 1000 <= Date.now()) {
+                continue;
+            }
+            if (v.eTime * 1000 <= Date.now()) {
+                continue;
+            }
+            if (v.joinCount < v.limitNum) {
+                this.joinEvent(event1.id).then(
+                    (data) => {
+                        if (data.status) {
+                            logger.mark(chalk.green('活动 ' + event1.name + ` [https://pc.pocketuni.net/active/detail?id=${event1.actiId}] [${chalk.yellowBright("加入成功")}]`))
+                            eventMap1.delete(event1.id);
+                            eventSet.add(event1.id)
+                            pusher.push("喵喵喵?" + ' 活动加入成功' + event1.name, '活动加入成功' + event1.name + ` [https://pc.pocketuni.net/active/detail?id=${event1.actiId}]`)
 
+                        } else {
+                            if (data.data === "您不是该活动的参与对象哦~") {
+                                blackSet.add(event1.id);
+                                eventMap.delete(event1.id)
+                                logger.warn(chalk.bgBlueBright(`[过滤器失效] 请在github提交issue [https://pc.pocketuni.net/active/detail?id=${event1.actiId}]`))
                             } else {
-                                if (data.data==="您不是该活动的参与对象哦~"){
-                                    blackSet.add(event.actiId);
-                                    eventMap.delete(id)
-                                    logger.warn(chalk.bgBlueBright(`[过滤器失效] 请在github提交issue [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`))
+                                if (data.data === "报名人数已达限制，无法报名哦~") {
+
                                 } else {
-                                    if (data.data === "报名人数已达限制，无法报名哦~") {
-
-                                    } else {
-                                        logger.error("未知错误: " + data.data + "  请在github提交issue [https://pc.pocketuni.net/active/detail?id=" + event.actiId + "]")
-
-                                    }
+                                    logger.error("未知错误: " + data.data + "  请在github提交issue [https://pc.pocketuni.net/active/detail?id=" + event1.actiId + "]")
 
                                 }
+
                             }
                         }
-                    ).catch((err)=>{
-                        logger.error(chalk.redBright("无网络 或者是 pu服务器死了 a") + err)
-                    })
-                }
+                    }
+                ).catch((err) => {
+                    logger.error(chalk.redBright("无网络 或者是 pu服务器死了 a") + err)
+                })
             }
-        }).catch(e=>{
+        }
 
-        })
 
-    })
+    }
 }
 
 
