@@ -53,7 +53,7 @@ class EmailPusher implements Pusher{
         }).then((e) => {
             logger.info(`${chalk.greenBright(`发送成功 -> ${push.email.to}`)} 标题: ${title}`);
         }).catch((e) => {
-            logger.info(`${chalk.redBright(`发送失败 -> ${push.email.to}`)} 标题: ${title}`);
+            logger.info(`${chalk.redBright(`发送失败 -> ${push.email.to}`)} 标题: ${title} 原因: ${e}`);
         });
     }
 }
