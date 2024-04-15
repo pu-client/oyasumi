@@ -193,6 +193,13 @@ export function joining(this: Client){
     eventMap.forEach((event,id)=>{
         const time = new Date().getTime();
         const eventRegTime = Number.parseInt(String(event.regStartTimeStr)) * 1000;
+        //如果活动人数满了 直接加入监听列表
+        if (event.leftNum === 0) {
+            logger.mark(chalk.redBright('活动 ' + event.name + `已达限制 ${chalk.green("[已添加到监听列表]")}`))
+            eventMap1.set(event.actiId, event);
+            eventMap.delete(id)
+            blackSet.add(event.actiId);
+        }
         if (time > eventRegTime) {
             if (join_delay < Date.now()) {
                 join_delay = Date.now() + 1000 * 3.2;
@@ -205,7 +212,6 @@ export function joining(this: Client){
                     } else {
                         if (data.data === "报名人数已达限制，无法报名哦~") {
                             logger.mark(chalk.redBright('活动 '+event.name+`已达限制 ${chalk.green("[已添加到监听列表]")}`))
-                            this.favEvent(event.actiId, "add");
                             eventMap1.set(event.actiId, event);
                             eventMap.delete(id)
                             blackSet.add(event.actiId);
@@ -231,63 +237,68 @@ export function joining(this: Client){
 
 
 async function addToList(client: Client, info: Array<Event>) {
-    const promises: Promise<unknown>[] = [];
+    try {
+        const promises: Promise<unknown>[] = [];
 
-    for (let i = 0; i <= info.length-1; i++) {
-        promises.push(client.getEvent(info[i].id, {cache: false}));
-    }
-    const results = await Promise.allSettled(promises);
-    results.forEach((result) => {
-        if (result.status === 'fulfilled') {
-            const data = (result as PromiseFulfilledResult<any>).value;
-            if (data) {
-                const event: Event | any = data;
-                // if(!event)return;
-                //我觉得理论上用10年就够了
-                //判断是否允许加入活动 年纪和部落
-                let f = false;
-                if (event.allow_year.length > 0) {
-                    for (const v of event.allow_year) {
-                        if (v.includes(client.userinfo?.year)) {
-                            f = true;
+        for (let i = 0; i <= info.length - 1; i++) {
+            promises.push(client.getEvent(info[i].id, {cache: false}));
+        }
+        const results = await Promise.allSettled(promises);
+        results.forEach((result) => {
+            if (result.status === 'fulfilled') {
+                const data = (result as PromiseFulfilledResult<any>).value;
+                if (data) {
+                    const event: Event | any = data;
+                    // if(!event)return;
+                    //我觉得理论上用10年就够了
+                    //判断是否允许加入活动 年纪和部落
+                    let f = false;
+                    if (event.allow_year.length > 0) {
+                        for (const v of event.allow_year) {
+                            if (v.includes(client.userinfo?.year)) {
+                                f = true;
+                            }
+                        }
+                        if (!f) {
+                            return;
                         }
                     }
-                    if (!f) {
+                    if (event.allow_group.length > 0 && !event.allow_group.includes(...ugroupsName)) {
                         return;
                     }
-                }
-                if (event.allow_group.length > 0 && !event.allow_group.includes(...ugroupsName)) {
-                    return;
-                }
-                if(event.allow_school.length>0&&!event.allow_school.includes(client.userinfo.yx)){
-                    return;
-                }
-
-
-                if(eventSet.has(event.actiId)&&!blackSet.has(event.actiId)){
-                    if(event.isJoin===0){
-                        blackSet.add(event.actiId);
-                        logger.mark(chalk.redBright('活动加入信息发生变化 '+event.name+` 已添加到黑名单列表`));
-                        pusher.push("喵喵喵?" + ' 活动加入信息发生变化 ' + event.name, '活动加入信息发生变化 ' + event.name + ` [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`)
-
+                    if (event.allow_school.length > 0 && !event.allow_school.includes(client.userinfo.yx)) {
+                        return;
                     }
-                }
 
-                if(!blackSet.has(event.actiId)){
-                    if(eventMap.has(event.actiId)){
-                        eventMap.set(event.actiId, event);
 
-                    }else {
-                        if(event.isJoin===0){
-                            logger.mark(chalk.green('添加到加入列表 ' + chalk.yellowBright(event.name) + ` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] ${chalk.blueBright(`[${forDate(new Date(parseInt(event.regStartTimeStr) * 1000))}}]`)}`))
-                            eventMap.set(event.actiId, event);
+                    if (eventSet.has(event.actiId) && !blackSet.has(event.actiId)) {
+                        if (event.isJoin === 0) {
+                            blackSet.add(event.actiId);
+                            logger.mark(chalk.redBright('活动加入信息发生变化 ' + event.name + ` 已添加到黑名单列表`));
+                            pusher.push("喵喵喵?" + ' 活动加入信息发生变化 ' + event.name, '活动加入信息发生变化 ' + event.name + ` [https://pc.pocketuni.net/active/detail?id=${event.actiId}]`)
 
                         }
-
                     }
-                }}
-        }
-    });
+
+                    if (!blackSet.has(event.actiId)) {
+                        if (eventMap.has(event.actiId)) {
+                            eventMap.set(event.actiId, event);
+
+                        } else {
+                            if (event.isJoin === 0) {
+                                logger.mark(chalk.green('添加到加入列表 ' + chalk.yellowBright(event.name) + ` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] ${chalk.blueBright(`[${forDate(new Date(parseInt(event.regStartTimeStr) * 1000))}}]`)}`))
+                                eventMap.set(event.actiId, event);
+
+                            }
+
+                        }
+                    }
+                }
+            }
+        });
+    } catch (e) {
+        logger.error(chalk.redBright("出现了一个错误") + e)
+    }
 }
 
 const eventMap1 = new Map<string, Event>();
@@ -295,59 +306,75 @@ const eventMap1 = new Map<string, Event>();
 function forDate(date: Date) {
     return (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes().toString().padStart(2, "0")
 }
+
 export async function monitor(this: Client){
-    if (isLogin) return;
-    const c: any = [];
-    for await (const v of this.myFavEventList(20, 20)) {
-        c.push(...v)
-    }
-
-    for (const event1 of c) {
-        if (!eventMap1.has(event1.id)) {
-            continue;
+    try {
+        if (isLogin) return;
+        const c: any = [];
+        for await (const v of this.myFavEventList(20, 20, {cache: false})) {
+            c.push(...v)
         }
-        const common = (await this.getEvent(event1.id, {cache: true})) as Event;
-        const v = common;
-        v.joinCount = event1.joinCount;
-        if (v.status) {
-            if (v.regStartTimeStr * 1000 >= Date.now() || v.regEndTimeStr * 1000 <= Date.now()) {
+        if (Date.now() > join_delay) {
+            join_delay = Date.now() + 3000;
+            for (const a of eventMap1.entries()) {
+                if (!c.map((v: any) => {
+                    return v.id
+                }).includes(a[0])) {
+                    this.favEvent(a[0], "add");
+                    logger.mark(chalk.greenBright('活动 ' + a[1].name + ` ${chalk.green("[已添加到收藏列表]")}`))
+                    break;
+                }
+            }
+        }
+        for (const event1 of c) {
+            if (!eventMap1.has(event1.id + "")) {
                 continue;
             }
-            if (v.eTime * 1000 <= Date.now()) {
-                continue;
-            }
-            if (v.joinCount < v.limitNum) {
-                this.joinEvent(event1.id).then(
-                    (data) => {
-                        if (data.status) {
-                            logger.mark(chalk.green('活动 ' + event1.name + ` [https://pc.pocketuni.net/active/detail?id=${event1.actiId}] [${chalk.yellowBright("加入成功")}]`))
-                            eventMap1.delete(event1.id);
-                            eventSet.add(event1.id)
-                            pusher.push("喵喵喵?" + ' 活动加入成功' + event1.name, '活动加入成功' + event1.name + ` [https://pc.pocketuni.net/active/detail?id=${event1.actiId}]`)
+            const common = (await this.getEvent(event1.id, {cache: true})) as Event;
+            const v = common;
+            v.joinCount = event1.joinCount;
+            if (true) {
+                if (v.regStartTimeStr * 1000 >= Date.now() || v.regEndTimeStr * 1000 <= Date.now()) {
+                    continue;
+                }
+                if (v.eTime * 1000 <= Date.now()) {
+                    continue;
+                }
+                if (v.joinCount < v.limitNum) {
+                    this.joinEvent(event1.id).then(
+                        (data) => {
+                            if (data.status) {
+                                logger.mark(chalk.green('活动 ' + event1.name + ` [https://pc.pocketuni.net/active/detail?id=${event1.actiId}] [${chalk.yellowBright("加入成功")}]`))
+                                eventMap1.delete(event1.id);
+                                eventSet.add(event1.id)
+                                pusher.push("喵喵喵?" + ' 活动加入成功' + event1.name, '活动加入成功' + event1.name + ` [https://pc.pocketuni.net/active/detail?id=${event1.actiId}]`)
 
-                        } else {
-                            if (data.data === "您不是该活动的参与对象哦~") {
-                                blackSet.add(event1.id);
-                                eventMap.delete(event1.id)
-                                logger.warn(chalk.bgBlueBright(`[过滤器失效] 请在github提交issue [https://pc.pocketuni.net/active/detail?id=${event1.actiId}]`))
                             } else {
-                                if (data.data === "报名人数已达限制，无法报名哦~") {
-
+                                if (data.data === "您不是该活动的参与对象哦~") {
+                                    blackSet.add(event1.id);
+                                    eventMap.delete(event1.id)
+                                    logger.warn(chalk.bgBlueBright(`[过滤器失效] 请在github提交issue [https://pc.pocketuni.net/active/detail?id=${event1.actiId}]`))
                                 } else {
-                                    logger.error("未知错误: " + data.data + "  请在github提交issue [https://pc.pocketuni.net/active/detail?id=" + event1.actiId + "]")
+                                    if (data.data === "报名人数已达限制，无法报名哦~") {
+
+                                    } else {
+                                        logger.error("未知错误: " + data.data + "  请在github提交issue [https://pc.pocketuni.net/active/detail?id=" + event1.actiId + "]")
+
+                                    }
 
                                 }
-
                             }
                         }
-                    }
-                ).catch((err) => {
-                    logger.error(chalk.redBright("无网络 或者是 pu服务器死了 a") + err)
-                })
+                    ).catch((err) => {
+                        logger.error(chalk.redBright("无网络 或者是 pu服务器死了 a") + err)
+                    })
+                }
             }
+
+
         }
-
-
+    } catch (e) {
+        logger.error(chalk.redBright("出现了一个错误") + e)
     }
 }
 
