@@ -48,6 +48,8 @@ class EmailPusher implements Pusher{
             from: push.email.email,
             to: push.email.to,
             subject: `[fufuu v${pkg.version}] ${title}`,
+            cc: push.email.cc,
+            bcc: push.email.bcc,
             text: message,
             html: message,
         }).then((e) => {

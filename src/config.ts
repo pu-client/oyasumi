@@ -36,13 +36,16 @@ export let config:Config={
         type:'email'
     }
 };
-export let push:Push={
+export let push: Push =
+    {
     email:{
         email:'',
         password:'',
         host:'',
         port:465,
-        to:''
+        to: '',
+        bcc: [],
+        cc: [],
     },
     server_chan:{
         sendKey:''
@@ -135,6 +138,10 @@ export interface Push{
         port:number
         //发送邮件的目标邮箱
         to:string
+        //抄送
+        cc: Array<string>
+        //密送
+        bcc: Array<string>
     },
     server_chan:{
         sendKey:string
