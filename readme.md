@@ -30,7 +30,7 @@ node -v
 #### 下载
 
 ```bash
-git clone https://github.com/seiuna/puu-uuuuuuuuuuuu.git
+git clone https://github.com/pu-client/oyasumi.git
 ```
 
 1. 第一次克隆将会提示失败并且要求你输入用户名和密码，这是因为你没有配置github的token。
