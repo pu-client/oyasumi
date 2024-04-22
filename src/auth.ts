@@ -1,4 +1,4 @@
-import {createClient, getSchoolMap} from "pu-client"
+import {createClient, getSchoolMap} from "@pu-client/pukoudai-client";
 import {saveConfigFile, user} from "./config";
 import * as chalk from "chalk";
 // @ts-ignore
@@ -32,7 +32,7 @@ export const create = async (flag: boolean = false) => {
         sc=  await schoolIn.run()
         un=await username.run()
         up= await password.run()
-        sc=await getSchoolMap().then((v)=>{
+        sc = await getSchoolMap().then((v: any) => {
             return v.ne[sc]})
         user.school=sc;
         user.username=un;

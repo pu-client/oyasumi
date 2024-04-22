@@ -1,5 +1,5 @@
 import {config, event, TimeInterval} from "./config";
-import {Client, Event, GroupData} from "pu-client";
+import {Client, Event, GroupData} from "@pu-client/pukoudai-client";
 import {getLogger} from "log4js";
 import * as chalk from "chalk";
 import {pusher} from "./pusher";

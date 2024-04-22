@@ -9,6 +9,7 @@
 pu-client库[pu-client](https://github.com/seiuna/pukoudai-client)。
 ## 快速开始
 
+
 ### 使用Termux(安卓/linux类似)
 
 #### 安装[Termux](https://github.com/termux/termux-app/releases)
@@ -32,6 +33,34 @@ node -v
 git clone https://github.com/seiuna/puu-uuuuuuuuuuuu.git
 ```
 
+1. 第一次克隆将会提示失败并且要求你输入用户名和密码，这是因为你没有配置github的token。
+2. 请访问[这里](https://github.com/settings/tokens)创建一个新的token，勾选`repo`权限。
+3. 然后在Termux中 依次输入你的用户名和token。
+
+至此你已经成功的配置了你的github账户。
+
+再次运行
+
+```bash
+git clone https://github.com/pu-client/oyasumi.git
+```
+
+#### 进入目录
+
+```bash
+cd oyausmi
+```
+
+#### 在安装依赖之前
+
+1. 命令行输入 ```bash npm login --scope=@pu-client --auth-type=legacy --registry=https://npm.pkg.github.com ```
+   ，回车，根据提示登录github
+2. ```bash
+   npm login --scope=@pu-client --auth-type=legacy --registry=https://npm.pkg.github.com
+    UserName: # 你的github账号
+    Password: # 前往 https://github.com/settings/tokens/new  获取，scopes勾选 read:packages
+    E-Mail: # 你的公开邮箱地址
+    ```
 #### 安装依赖
 
 ```bash

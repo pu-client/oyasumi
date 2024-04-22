@@ -5,7 +5,7 @@ import * as chalk from "chalk";
 import {scheduleJob} from "node-schedule";
 import {joining, monitor, pushing, sign} from "./common";
 import * as log4js from "log4js";
-import {Client, Group} from "pu-client";
+import {Client, createClientByQrcode, Group, Qrcode} from "@pu-client/pukoudai-client";
 import {createPusher, pusher} from "./pusher";
 import {exec} from 'child_process';
 
@@ -73,6 +73,10 @@ let task_sign;
     await createConfigFile()
     await loadConfigFile()
     await saveConfigFile()
+    // const client = await createClientByQrcode((await Qrcode().then((v) => {
+    //     console.log(v.terminal)
+    //     return v.token
+    // })))
     const client = await create();
     logger.mark(chalk.redBright(`免责声明: 本软件仅供学习交流使用,请勿用于非法用途,否则后果自负!`));
     logger.mark(chalk.yellowBright(`Github: https://github.com/seiuna/puu-uuuuuuuuuuuu`));
