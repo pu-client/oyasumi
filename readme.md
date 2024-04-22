@@ -29,7 +29,7 @@ node -v
 #### 下载
 
 ```bash
-git clone https://github.com/seiuna/puu-uuuuuuuuuuuu.git
+git clone https://github.com/pu-client/oyasumi.git
 ```
 
 #### 安装依赖
