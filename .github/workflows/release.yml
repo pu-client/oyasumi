@@ -17,10 +17,10 @@ jobs:
           registry-url: https://npm.pkg.github.com/
 
       - name: login
-        run: echo //npm.pkg.github.com/:_authToken={{secrets.GIT_TOKEN}} > ~/.npmrc
+        run: echo //npm.pkg.github.com/:_authToken={{secrets.GIT_TOKEN}} > ./.npmrc
 
       - name: out
-        run: cat > ~/.npmrc
+        run: cat ./.npmrc
 
       - name: install
         run: npm ci
