@@ -33,7 +33,7 @@ jobs:
         run: npm run build
 
       - name: build win
-        run: npx pkg -t node18-win-x64 dist/src/app.js -o fufuu for windows.exe
+        run: npx pkg -t node18-win-x64 dist/src/app.js
 
       - name: Build
         run: echo ${{ github.sha }} > Release.txt
