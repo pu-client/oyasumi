@@ -32,6 +32,12 @@ jobs:
       - name: build exe
         run: npx pkg -t node18-win-x64 dist/src/app.js
 
+      - name: Build
+        run: echo ${{ github.sha }} > Release.txt
+
+      - name: Test
+        run: cat Release.txt
+
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
