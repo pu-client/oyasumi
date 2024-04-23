@@ -45,7 +45,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           if: startsWith(github.ref, 'publish~')
-          tag_name: ${{GITHUB_REF_NAME}}
+          tag_name: ${{github.ref}}
           generated_release_notes: CHANGELOG.md
           files: |
             Release.txt
