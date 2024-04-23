@@ -23,7 +23,7 @@ jobs:
         run: cat ./.npmrc
 
       - name: install
-        run: npm ci
+        run: npm install
         env:
           NODE_AUTH_TOKEN: ${{secrets.GIT_TOKEN}}
       - name: build
