@@ -8,6 +8,8 @@ import * as log4js from "log4js";
 import {Client, createClientByQrcode, Group, Qrcode} from "@pu-client/pukoudai-client";
 import {createPusher, pusher} from "./pusher";
 import {exec} from 'child_process';
+// @ts-ignore
+import {AutoComplete} from "enquirer";
 
 const logger = log4js.getLogger("app");
 
@@ -73,11 +75,22 @@ let task_sign;
     await createConfigFile()
     await loadConfigFile()
     await saveConfigFile()
+    let flag = false;
+    if (user.password == "" || user.username == "" || user.school == "") {
+        flag = true;
+    }
+    const cc = new AutoComplete({
+        name: 'school',
+        message: '是否使用当前账户?(使用键盘上下键切换)',
+        choices: ["是", "否"]
+    });
+    const vv = flag ? true : (await cc.run()) == "是";
+
     // const client = await createClientByQrcode((await Qrcode().then((v) => {
     //     console.log(v.terminal)
     //     return v.token
     // })))
-    const client = await create();
+    const client = await create(vv);
     logger.mark(chalk.redBright(`免责声明: 本软件仅供学习交流使用,请勿用于非法用途,否则后果自负!`));
     logger.mark(chalk.yellowBright(`Github: https://github.com/seiuna/puu-uuuuuuuuuuuu`));
     logger.mark(chalk.blueBright(`登录中...`));

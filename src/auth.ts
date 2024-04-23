@@ -1,10 +1,10 @@
-import {createClient, getSchoolMap} from "@pu-client/pukoudai-client";
+import {Client, createClient, getSchoolMap} from "@pu-client/pukoudai-client";
 import {saveConfigFile, user} from "./config";
 import * as chalk from "chalk";
 // @ts-ignore
 import {AutoComplete, Input, Password} from 'enquirer';
 
-export const create = async (flag: boolean = false) => {
+export const create = async (flag: boolean = false): Promise<Client> => {
     let sc =user.school
     let un =user.username
     let up =user.password
@@ -44,6 +44,7 @@ export const create = async (flag: boolean = false) => {
     return await createClient(un,sc,up);
 
     } catch (err) {
-        return undefined
+        console.log(chalk.redBright("登录失败 请检查账户密码后重新登录!"))
+        return create(true);
     }
 };
