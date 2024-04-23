@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: install
+        run: npm ci
+
+      - name: build
+        run: npm run build
+
+      - name: exe
+        run: pkg -t node18-win-x64 dist/app.js
+
+      - name: release
+        use: softprops/action-gh-release@v2
+        with:
+          files: dist/app-win.exe
+
