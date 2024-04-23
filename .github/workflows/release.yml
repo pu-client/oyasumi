@@ -35,13 +35,6 @@ jobs:
       - name: build win
         run: npx pkg -t node18-win-x64 dist/src/app.js -o fufuu for windows.exe
 
-      - name: build mac
-        run: npx pkg -t node18-mac-x64 dist/src/app.js fufuu for mac
-
-      - name: build linux
-        run: npx pkg -t node18-linux-x64 dist/src/app.js fufuu for linux
-
-
       - name: Build
         run: echo ${{ github.sha }} > Release.txt
 
@@ -57,8 +50,5 @@ jobs:
           files: |
             Release.txt
             app.exe
-            fufuu for linux
-            fufuu for mac
-            fufuu for windows.exe
         env:
           GITHUB_TOKEN: ${{secrets.GIT_TOKEN}}
