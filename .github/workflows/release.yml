@@ -11,7 +11,6 @@ jobs:
       #      - name: Build
       #        run: echo ${{ github.sha }} > Release.txt
       #      - name: Test
-      #        run: cat Release.txt
       - uses: actions/setup-node@v3
         with:
           node-version: 20
