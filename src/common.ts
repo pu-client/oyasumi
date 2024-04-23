@@ -75,7 +75,6 @@ export async function doFilter(e: Event, client: Client) {
             flag2=flag2&&false;
 
         }
-
         v.names.forEach(v => {
             if (!new RegExp(v).test(e.title)) {
                 if (flag2) logger.debug("filter failed: name match " + e.title)
@@ -194,12 +193,12 @@ export function joining(this: Client){
         const time = new Date().getTime();
         const eventRegTime = Number.parseInt(String(event.regStartTimeStr)) * 1000;
         //如果活动人数满了 直接加入监听列表
-        if (event.leftNum === 0) {
-            logger.mark(chalk.redBright('活动 ' + event.name + `已达限制 ${chalk.green("[已添加到监听列表]")}`))
-            eventMap1.set(event.actiId, event);
-            eventMap.delete(id)
-            blackSet.add(event.actiId);
-        }
+        // if (event.leftNum === 0) {
+        //     logger.mark(chalk.redBright('活动 ' + event.name + `已达限制 ${chalk.green("[已添加到监听列表]")}`))
+        //     eventMap1.set(event.actiId, event);
+        //     even tMap.delete(id)
+        //     blackSet.add(event.actiId);
+        // }
         if (time > eventRegTime) {
             if (join_delay < Date.now()) {
                 join_delay = Date.now() + 1000 * 3.2;
