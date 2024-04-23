@@ -84,7 +84,7 @@ let task_sign;
         message: '是否使用当前账户?(使用键盘上下键切换)',
         choices: ["是", "否"]
     });
-    const vv = flag ? true : (await cc.run()) == "是";
+    const vv = flag ? true : (await cc.run()) != "是";
 
     // const client = await createClientByQrcode((await Qrcode().then((v) => {
     //     console.log(v.terminal)
