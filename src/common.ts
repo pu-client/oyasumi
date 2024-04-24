@@ -268,7 +268,9 @@ async function addToList(client: Client, info: Array<Event>) {
                     if (event.allow_school.length > 0 && !event.allow_school.includes(client.userinfo.yx)) {
                         return;
                     }
-
+                    if (event.limitNum == 1) {
+                        return;
+                    }
 
                     if (eventSet.has(event.actiId) && !blackSet.has(event.actiId)) {
                         if (event.isJoin === 0) {
@@ -346,7 +348,7 @@ export async function monitor(this: Client){
                                 logger.mark(chalk.green('活动 ' + event1.name + ` [https://pc.pocketuni.net/active/detail?id=${event1.actiId}] [${chalk.yellowBright("加入成功")}]`))
                                 eventMap1.delete(event1.id);
                                 eventSet.add(event1.id)
-                                pusher.push("喵喵喵?" + ' 活动加入成功' + event1.name, '活动加入成功' + event1.name + ` [https://pc.pocketuni.net/active/detail?id=${event1.actiId}]`)
+                                pusher.push("喵喵喵?" + ' 活动加入成功' + v.name, '活动加入成功' + v.name + ` [https://pc.pocketuni.net/active/detail?id=${event1.actiId}]`)
 
                             } else {
                                 if (data.data === "您不是该活动的参与对象哦~") {
