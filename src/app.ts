@@ -92,7 +92,7 @@ let task_sign;
     // })))
     const client = await create(vv);
     logger.mark(chalk.redBright(`免责声明: 本软件仅供学习交流使用,请勿用于非法用途,否则后果自负!`));
-    logger.mark(chalk.yellowBright(`Github: https://github.com/seiuna/puu-uuuuuuuuuuuu`));
+    logger.mark(chalk.yellowBright(`Github: https://github.com/pu-client/oyasumi`));
     logger.mark(chalk.blueBright(`登录中...`));
     if (!client) {
         logger.error("用户名密码错误")
@@ -105,7 +105,6 @@ let task_sign;
     }
     await createPusher();
     logger.mark(chalk.blueBright(`登录完成 学号: ${client.userinfo?.sno} 班级: ${client.userinfo?.class} 年级: ${client.userinfo?.year} `));
-    logger.mark(chalk.yellowBright(`创建任务 pushing joining`));
     //------------------------------------------------------------------
     task_update= scheduleJob('* * */0 * * *', update.bind(client));
     task_pushing = scheduleJob('*/1 * * * *', pushing.bind(client));
@@ -146,7 +145,6 @@ async function update(this:Client){
     await loadConfigFile()
     await saveConfigFile()
     await keeper.bind(this)();
-
 }
 
 export let isLogin: boolean;

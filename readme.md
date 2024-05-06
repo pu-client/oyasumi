@@ -1,5 +1,6 @@
 ## 当前状态
 
+玛的被省团委逮到了，所以这个项目暂时停止维护，等我熬过这段时间再说吧。别问我为什么不删，我就是不删。
 ## 免责声明!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 本项目仅供学习交流使用，请勿用于商业用途，否则后果自负。
@@ -9,8 +10,7 @@
 pu-client库[pu-client](https://github.com/seiuna/pukoudai-client)。
 ## 快速开始
 
-
-### 使用Termux(安卓/linux类似)
+### *使用Termux*(linux类似)
 
 #### 安装[Termux](https://github.com/termux/termux-app/releases)
 
@@ -34,9 +34,9 @@ git clone https://github.com/pu-client/oyasumi.git
 ```
 
 1. 第一次克隆将会提示失败并且要求你输入用户名和密码，这是因为你没有配置github的token。
-2. 请访问[这里](https://github.com/settings/tokens)创建一个新的token，勾选`repo`权限。
+2. 请访问[这里](https://github.com/settings/tokens)创建一个新的token，勾选`admin:org` `read:packages`  `user`权限。
+   ![img.png](imgs/img.png)![img_1.png](imgs/img_1.png)
 3. 然后在Termux中 依次输入你的用户名和token。
-
 至此你已经成功的配置了你的github账户。
 
 再次运行
@@ -58,8 +58,7 @@ cd oyausmi
 2. ```bash
    npm login --scope=@pu-client --auth-type=legacy --registry=https://npm.pkg.github.com
     UserName: # 你的github账号
-    Password: # 前往 https://github.com/settings/tokens/new  获取，scopes勾选 read:packages
-    E-Mail: # 你的公开邮箱地址
+    Password: # 之前登录的token
     ```
 #### 安装依赖
 
@@ -79,45 +78,52 @@ npm run dev
 npm run login
 ```
 
-### 使用Windows
-
-#### 安装[Node.js](https://nodejs.org/zh-cn/download/)
-
-#### 安装[Git](https://git-scm.com/downloads)
-
-#### 下载
-
-```bash
-git clone https://github.com/seiuna/puu-uuuuuuuuuuuu.git
-```
-
-#### 安装依赖
-
-```bash
-cd puu-uuuuuuuuuuuu
-```
-
-```bash
-npm install
-```
-
-#### 运行
-
-```bash
-npm run dev
-```
-
-#### 切换账户或者重新登录
-
-```bash
-npm run login
-```
 
 ### 注意事项
 
 1. 不要将termux放到后台，否则可能会导致程序无法正常运行。
 
 # 配置文件
+
+### 配置邮箱推送
+
+文件 `config.json` 中的 `pushing` 配置项可以配置是否启用推送，以及推送的类型。
+文件 `push.json` 中的 `email` 配置项可以配置邮箱推送的相关信息。
+
+```json
+{
+   "pushing": {
+      "enable": true,
+      "type": "email"
+      // email 邮箱推送
+   }
+}
+```
+
+注册 [outlook](https://outlook.live.com/owa/)。
+
+```json
+{
+   "email": {
+      "email": "你的邮箱",
+      "password": "密码",
+      "host": "smtp-mail.outlook.com",
+      //建议outlook 邮箱
+      "port": 587,
+      "to": "发给谁?",
+      "cc": [
+         "发给谁?但是别人知道我也发给了他"
+      ],
+      "bcc": [
+         "发给谁?但是别人不知道我也发给了他"
+      ]
+   },
+   "server_chan": {
+      "sendKey": ""
+   }
+}
+```
+
 
 ### 修改活动筛选条件
 
