@@ -34,7 +34,8 @@ export let config:Config={
     pushing:{
         enable:false,
         type:'email'
-    }
+    },
+    skip: true
 };
 export let push: Push =
     {
@@ -108,6 +109,7 @@ export interface Config{
         //推送类型
         type:string // email ServerChan
     }
+    skip: boolean
 }
 export interface Event{
     filter:Array<{
