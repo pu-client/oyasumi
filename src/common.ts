@@ -320,6 +320,7 @@ function forDate(date: Date) {
 export async function monitor(this: Client){
     try {
         if (isLogin) return;
+        if (eventMap1.size == 0) return;
         const c: any = [];
         for await (const v of this.myFavEventList(20, 20, {cache: false})) {
             c.push(...v)
