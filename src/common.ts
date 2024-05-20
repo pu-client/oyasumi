@@ -1,4 +1,4 @@
-import {config, event, TimeInterval} from "./config";
+import {config, event, push, TimeInterval} from "./config";
 import {Client, Event, GroupData} from "@pu-client/pukoudai-client";
 import {getLogger} from "log4js";
 import * as chalk from "chalk";
@@ -186,7 +186,7 @@ const eventMap = new Map<string, Event>();
 const eventSet = new Set<string>();
 export const blackSet = new Set<string>();
 
-let join_delay = 0;
+let api_delay = 0;
 export function joining(this: Client){
     if (isLogin) return;
     eventMap.forEach((event,id)=>{
@@ -200,8 +200,8 @@ export function joining(this: Client){
         //     blackSet.add(event.actiId);
         // }
         if (time > eventRegTime) {
-            if (join_delay < Date.now()) {
-                join_delay = Date.now() + 1000 * 3.2;
+            if (api_delay < Date.now()) {
+                api_delay = Date.now() + 1000 * 3.2;
                 this.joinEvent(event.actiId).then((data) => {
                     if (data.status) {
                         logger.mark(chalk.green('活动 '+event.name+` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] [${chalk.yellowBright("加入成功")}]`))
@@ -236,7 +236,10 @@ export function joining(this: Client){
 
 
 async function addToList(client: Client, info: Array<Event>) {
+
     try {
+        const msg = "";
+        let c = 0;
         const promises: Promise<unknown>[] = [];
 
         for (let i = 0; i <= info.length - 1; i++) {
@@ -289,7 +292,8 @@ async function addToList(client: Client, info: Array<Event>) {
                             if (event.isJoin === 0) {
                                 logger.mark(chalk.green('添加到加入列表 ' + chalk.yellowBright(event.name) + ` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] ${chalk.blueBright(`[${forDate(new Date(parseInt(event.regStartTimeStr) * 1000))}}]`)}`))
                                 eventMap.set(event.actiId, event);
-
+                                msg.concat(`活动 ${event.name} [https://pc.pocketuni.net/active/detail?id=${event.actiId}] ${forDate(new Date(parseInt(event.regStartTimeStr) * 1000))}\n`)
+                                c++;
                             }
 
                         }
@@ -297,6 +301,11 @@ async function addToList(client: Client, info: Array<Event>) {
                 }
             }
         });
+        if (msg !== "") {
+            if (push.pushInfo)
+
+                pusher.push("发现 " + c + " 个活动", msg, false)
+        }
     } catch (e) {
         logger.error(chalk.redBright("出现了一个错误") + e)
     }
@@ -315,12 +324,12 @@ export async function monitor(this: Client){
         for await (const v of this.myFavEventList(20, 20, {cache: false})) {
             c.push(...v)
         }
-        if (Date.now() > join_delay) {
-            join_delay = Date.now() + 3000;
+        if (Date.now() > api_delay) {
             for (const a of eventMap1.entries()) {
                 if (!c.map((v: any) => {
                     return v.id
                 }).includes(a[0])) {
+                    api_delay = Date.now() + 3000;
                     this.favEvent(a[0], "add");
                     logger.mark(chalk.greenBright('活动 ' + a[1].name + ` ${chalk.green("[已添加到收藏列表]")}`))
                     break;
@@ -341,7 +350,10 @@ export async function monitor(this: Client){
                 if (v.eTime * 1000 <= Date.now()) {
                     continue;
                 }
-                if (v.joinCount < v.limitNum) {
+                console.log(event1.limitCount)
+                if (event1.limitCount > 0) {
+                    if (api_delay > Date.now()) break;
+                    api_delay = Date.now() + 3000;
                     this.joinEvent(event1.id).then(
                         (data) => {
                             if (data.status) {
@@ -357,6 +369,7 @@ export async function monitor(this: Client){
                                     logger.warn(chalk.bgBlueBright(`[过滤器失效] 请在github提交issue [https://pc.pocketuni.net/active/detail?id=${event1.actiId}]`))
                                 } else {
                                     if (data.data === "报名人数已达限制，无法报名哦~") {
+                                        logger.error("活动 " + event1.title + " 已达限制")
 
                                     } else {
                                         logger.error("未知错误: " + data.data + "  请在github提交issue [https://pc.pocketuni.net/active/detail?id=" + event1.actiId + "]")
@@ -374,6 +387,7 @@ export async function monitor(this: Client){
 
 
         }
+
     } catch (e) {
         logger.error(chalk.redBright("出现了一个错误") + e)
     }
