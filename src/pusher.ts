@@ -7,10 +7,10 @@ import * as pkg from "../package.json";
 import * as chalk from "chalk";
 export interface Pusher{
 
-    push(title:string,message:string):void;
+    push(title: string, message: string, type?: boolean): void;
 }
 class ScPusher implements Pusher{
-    async push(title:string,message: string): Promise<void> {
+    async push(title: string, message: string, type: boolean = true): Promise<void> {
         const postData = querystring.stringify({ title, message });
         const url = `https://sctapi.ftqq.com/${push.server_chan.sendKey}.send`;
         const response = await fetch(url, {
@@ -42,14 +42,15 @@ class EmailPusher implements Pusher{
         });
 
     }
-    async push(title:string,message: string): Promise<void> {
+
+    async push(title: string, message: string, type: boolean = true): Promise<void> {
         logger.info(`尝试发送邮件 -> ${push.email.to} 标题: ${title}`);
         await this.transport.sendMail({
             from: push.email.email,
             to: push.email.to,
             subject: `[fufuu v${pkg.version}] ${title}`,
-            cc: push.email.cc,
-            bcc: push.email.bcc,
+            cc: type ? push.email.cc : [],
+            bcc: type ? push.email.bcc : [],
             text: message,
             html: message,
         }).then((e) => {

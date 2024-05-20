@@ -39,19 +39,20 @@ export let config:Config={
 };
 export let push: Push =
     {
-    email:{
-        email:'',
-        password:'',
-        host:'',
-        port:465,
-        to: '',
-        bcc: [],
-        cc: [],
-    },
-    server_chan:{
-        sendKey:''
-    }
-};
+        pushInfo: false,
+        email: {
+            email: '',
+            password: '',
+            host: '',
+            port: 465,
+            to: '',
+            bcc: [],
+            cc: [],
+        },
+        server_chan: {
+            sendKey: ''
+        }
+    };
 export async function createConfigFile() {
     Fs.mkdirSync(process.cwd()+"/config", { recursive: true });
     if (!Fs.existsSync(process.cwd()+"/config/push.json")) {
@@ -129,6 +130,7 @@ export interface Event{
     }>
 }
 export interface Push{
+    pushInfo: boolean;
     email:{
         //发送邮件的邮箱
         email:string
