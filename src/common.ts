@@ -351,7 +351,6 @@ export async function monitor(this: Client){
                 if (v.eTime * 1000 <= Date.now()) {
                     continue;
                 }
-                console.log(event1.limitCount)
                 if (event1.limitCount > 0) {
                     if (api_delay > Date.now()) break;
                     api_delay = Date.now() + 3000;
