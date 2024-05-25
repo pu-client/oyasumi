@@ -10,7 +10,6 @@ import {createPusher, pusher} from "./pusher";
 import {exec} from 'child_process';
 // @ts-ignore
 import {AutoComplete} from "enquirer";
-
 const logger = log4js.getLogger("app");
 
 
@@ -93,7 +92,7 @@ let task_sign;
     // })))
     const client = await create(vv);
     logger.mark(chalk.redBright(`免责声明: 本软件仅供学习交流使用,请勿用于非法用途,否则后果自负!`));
-    logger.mark(chalk.yellowBright(`Github: https://github.com/pu-client/oyasumi`));
+    logger.mark(chalk.greenBright(`Github: https://github.com/pu-client/oyasumi`));
     logger.mark(chalk.blueBright(`登录中...`));
     if (!client) {
         logger.error("用户名密码错误")
@@ -115,8 +114,13 @@ let task_sign;
     }
     // task_pushing = scheduleJob('*/10 * * * * *', pushing.bind(client));
     task_keeper = scheduleJob('*/8 * * * * *', keeper.bind(client));
-    task_joining= setInterval(joining.bind(client),200);
-    task_monitor = setInterval(monitor.bind(client), 150);
+    if (config.autoJoin) {
+        task_joining = setInterval(joining.bind(client), 200);
+        task_monitor = setInterval(monitor.bind(client), 150);
+    } else {
+        logger.mark(chalk.redBright(`自动加入活动未开启！`));
+    }
+
     //------------------------------------------------------------------
     if (config.pushing.enable) {
         // pusher.push("喵喵喵? 已成功启动！", "")
