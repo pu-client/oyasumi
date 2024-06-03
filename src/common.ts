@@ -238,7 +238,7 @@ export function joining(this: Client){
 async function addToList(client: Client, info: Array<Event>) {
 
     try {
-        const msg = "";
+        let msg = "";
         let c = 0;
         const promises: Promise<unknown>[] = [];
 
@@ -292,7 +292,7 @@ async function addToList(client: Client, info: Array<Event>) {
                             if (event.isJoin === 0) {
                                 logger.mark(chalk.green('添加到加入列表 ' + chalk.yellowBright(event.name) + ` [https://pc.pocketuni.net/active/detail?id=${event.actiId}] ${chalk.blueBright(`[${forDate(new Date(parseInt(event.regStartTimeStr) * 1000))}}]`)}`))
                                 eventMap.set(event.actiId, event);
-                                msg.concat(`活动 ${event.name} [https://pc.pocketuni.net/active/detail?id=${event.actiId}] ${forDate(new Date(parseInt(event.regStartTimeStr) * 1000))}\n`)
+                                msg += (`活动 ${event.name} [https://pc.pocketuni.net/active/detail?id=${event.actiId}] ${forDate(new Date(parseInt(event.regStartTimeStr) * 1000))}\n`)
                                 c++;
                             }
 

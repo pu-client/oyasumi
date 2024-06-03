@@ -1,5 +1,5 @@
 import {Client, createClient, getSchoolMap} from "@pu-client/pukoudai-client";
-import {saveConfigFile, user} from "./config";
+import {createConfigFile, loadConfigFile, saveConfigFile, user} from "./config";
 import * as chalk from "chalk";
 // @ts-ignore
 import {AutoComplete, Input, Password} from 'enquirer';
@@ -37,6 +37,8 @@ export const create = async (flag: boolean = false): Promise<Client> => {
         user.school=sc;
         user.username=un;
         user.password=up;
+        await createConfigFile()
+        await loadConfigFile();
        await saveConfigFile();
     }
 

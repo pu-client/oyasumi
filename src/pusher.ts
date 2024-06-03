@@ -5,6 +5,7 @@ import * as querystring from "querystring";
 import {getLogger} from "log4js";
 import * as pkg from "../package.json";
 import * as chalk from "chalk";
+import fetch from "nodemailer/lib/fetch";
 export interface Pusher{
 
     push(title: string, message: string, type?: boolean): void;
@@ -23,7 +24,6 @@ class ScPusher implements Pusher{
             })(),
             body: postData
         });
-        const data = await response.text();
     }
 }
 
@@ -76,5 +76,4 @@ export async function createPusher(){
             }
         }
     }
-
 }

@@ -52,7 +52,8 @@ export let push: Push =
         },
         server_chan: {
             sendKey: ''
-        }
+        },
+        url: ""
     };
 export async function createConfigFile() {
     Fs.mkdirSync(process.cwd()+"/config", { recursive: true });
@@ -132,6 +133,7 @@ export interface Event{
     }>
 }
 export interface Push{
+    url: string;
     pushInfo: boolean;
     email:{
         //发送邮件的邮箱
